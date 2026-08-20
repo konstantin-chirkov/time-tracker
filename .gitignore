@@ -2,3 +2,4 @@
 src-tauri/target/
 *.dmg
 *.msi
+*.exe
