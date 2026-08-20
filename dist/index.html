@@ -1,0 +1,1460 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+<style>
+:root {
+  --background:#ffffff;
+  --foreground:#0a0a0a;
+  --card:#ffffff;
+  --card-foreground:#0a0a0a;
+  --popover:#ffffff;
+  --popover-foreground:#0a0a0a;
+  --primary:#171717;
+  --primary-foreground:#fafafa;
+  --secondary:#f5f5f5;
+  --secondary-foreground:#0a0a0a;
+  --muted:#f5f5f5;
+  --muted-foreground:#737373;
+  --accent:#f5f5f5;
+  --accent-foreground:#171717;
+  --destructive:#dc2626;
+  --destructive-foreground:#fafafa;
+  --border:#e5e5e5;
+  --input:#e5e5e5;
+  --ring:#737373;
+  --chart-1:#5eb1ef;
+
+  --radius-sm:4px;
+  --radius-md:6px;
+  --radius-lg:8px;
+  --radius-xl:12px;
+
+  --font-sans:'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background:#0a0a0a;
+    --foreground:#fafafa;
+    --card:#171717;
+    --card-foreground:#fafafa;
+    --popover:#262626;
+    --popover-foreground:#fafafa;
+    --primary:#e5e5e5;
+    --primary-foreground:#171717;
+    --secondary:#262626;
+    --secondary-foreground:#fafafa;
+    --muted:#262626;
+    --muted-foreground:#a3a3a3;
+    --accent:#404040;
+    --accent-foreground:#fafafa;
+    --destructive:#f87171;
+    --destructive-foreground:#171717;
+    --border:#404040;
+    --input:#171717;
+    --ring:#737373;
+    --chart-1:#5eb1ef;
+  }
+}
+:root[data-theme="dark"] {
+  --background:#0a0a0a;
+  --foreground:#fafafa;
+  --card:#171717;
+  --card-foreground:#fafafa;
+  --popover:#262626;
+  --popover-foreground:#fafafa;
+  --primary:#e5e5e5;
+  --primary-foreground:#171717;
+  --secondary:#262626;
+  --secondary-foreground:#fafafa;
+  --muted:#262626;
+  --muted-foreground:#a3a3a3;
+  --accent:#404040;
+  --accent-foreground:#fafafa;
+  --destructive:#f87171;
+  --destructive-foreground:#171717;
+  --border:#404040;
+  --input:#171717;
+  --ring:#737373;
+  --chart-1:#5eb1ef;
+}
+
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; }
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ---------- shell ---------- */
+.app {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--foreground);
+}
+.tabs {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--muted);
+  border-radius: var(--radius-lg);
+  gap: 2px;
+}
+.tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.tab:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.tab[data-active="true"] {
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+.screen { display: none; }
+.screen[data-active="true"] { display: block; }
+
+/* ---------- primitives ---------- */
+.card {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+}
+.btn {
+  appearance: none;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, opacity .15s ease;
+  white-space: nowrap;
+}
+.btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.btn svg { width: 15px; height: 15px; flex: none; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-primary:hover { opacity: .88; }
+.btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
+.btn-secondary:hover { background: var(--accent); }
+.btn-outline { background: transparent; color: var(--foreground); border-color: var(--border); }
+.btn-outline:hover { background: var(--accent); }
+.btn-ghost { background: transparent; color: var(--muted-foreground); }
+.btn-ghost:hover { background: var(--accent); color: var(--accent-foreground); }
+.btn-destructive-ghost { background: transparent; color: var(--muted-foreground); }
+.btn-destructive-ghost:hover { background: var(--destructive); color: var(--destructive-foreground); }
+.btn-sm { height: 30px; padding: 0 10px; font-size: 12px; }
+.btn-icon { width: 36px; padding: 0; }
+.btn-link { background: transparent; border: none; color: var(--muted-foreground); font-size: 12px; height: auto; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+.btn-link:hover { color: var(--foreground); }
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-bottom: 6px;
+}
+.input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--input);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+.input::placeholder { color: var(--muted-foreground); }
+.input:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+.badge-tag { background: var(--secondary); color: var(--secondary-foreground); }
+.badge-muted { background: transparent; color: var(--muted-foreground); border: 1px solid var(--border); }
+.badge-warn { background: transparent; color: var(--destructive); border: 1px solid var(--destructive); }
+
+/* ---------- screen 1: timer ---------- */
+.timer-layout { max-width: 560px; margin: 0 auto; }
+.timer-card { padding: 32px; }
+.rec-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 500; color: var(--muted-foreground);
+  text-transform: uppercase; letter-spacing: .04em;
+  margin-bottom: 18px;
+}
+.rec-dot {
+  width: 7px; height: 7px; border-radius: 999px;
+  background: var(--chart-1);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .rec-dot { animation: none; } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+.timer-display {
+  font-size: 52px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+
+.idle-view { display: flex; flex-direction: column; align-items: center; padding: 64px 0 32px; }
+.timer-card.is-idle { border-color: transparent; background: transparent; }
+.btn-play-big { height: 44px; padding: 0 28px; font-size: 14px; }
+.btn-play-big svg { width: 16px; height: 16px; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--popover); color: var(--popover-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 10px 16px; font-size: 13px; font-weight: 500;
+  box-shadow: 0 12px 32px rgba(0,0,0,.18);
+  z-index: 50;
+  animation: toast-in .2s ease;
+}
+.toast svg { width: 16px; height: 16px; color: var(--chart-1); flex: none; }
+@keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+.title-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--foreground);
+  padding: 0;
+  margin-bottom: 26px;
+}
+.title-input::placeholder { color: var(--muted-foreground); font-weight: 400; }
+.title-input:focus-visible { outline: none; }
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+.controls-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 30px;
+}
+.controls-row .spacer { flex: 1; }
+
+.discard-confirm {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  background: var(--muted);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  color: var(--foreground);
+  flex-wrap: wrap;
+}
+.discard-confirm strong { font-weight: 600; }
+.discard-confirm-actions { display: flex; gap: 8px; margin-left: auto; flex: none; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted-foreground);
+  margin: 40px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.day-summary { font-weight: 500; color: var(--foreground); text-transform: none; letter-spacing: 0; font-size: 12px; }
+.day-panel-actions { display: flex; align-items: center; gap: 12px; }
+.day-panel-actions .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; text-transform: none; letter-spacing: 0; }
+
+.entry-list { display: flex; flex-direction: column; gap: 18px; }
+.entry-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.entry-main { flex: 1; min-width: 0; }
+.entry-title { font-size: 13px; font-weight: 500; color: var(--foreground); margin-bottom: 4px; }
+.entry-meta { display: flex; align-items: center; gap: 6px; }
+.entry-time { font-size: 13px; color: var(--muted-foreground); flex: none; text-align: right; white-space: nowrap; }
+.entry-money { font-size: 13px; font-weight: 500; width: 84px; text-align: right; flex: none; }
+.entry-money.muted { color: var(--muted-foreground); font-weight: 400; }
+.entry-money.warn { color: var(--destructive); font-weight: 400; }
+
+.row-edit-btn {
+  width: 28px; height: 28px; flex: none;
+  border: 1px solid var(--border); background: var(--background);
+  border-radius: var(--radius-sm);
+  color: var(--muted-foreground);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.row-edit-btn svg { width: 14px; height: 14px; }
+.row-edit-btn:hover { background: var(--accent); color: var(--accent-foreground); }
+.row-edit-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.row-edit-delete:hover { background: var(--destructive); color: var(--destructive-foreground); }
+
+.entry-edit-card {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; background: var(--muted); border-radius: var(--radius-lg);
+}
+.entry-edit-title-line {
+  width: 100%; border: none; background: transparent;
+  font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+  color: var(--foreground); padding: 0;
+}
+.entry-edit-title-line::placeholder { color: var(--muted-foreground); font-weight: 400; }
+.entry-edit-title-line:focus-visible { outline: none; }
+.entry-edit-fields { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.entry-edit-fields .input { height: 32px; font-size: 12.5px; padding: 0 10px; }
+.entry-edit-fields .combo-trigger { height: 32px; font-size: 12.5px; padding: 0 10px; }
+.date-field { position: relative; }
+.date-field .input { padding-right: 30px; }
+.date-cal-btn {
+  position: absolute; right: 3px; top: 50%; transform: translateY(-50%);
+  width: 24px; height: 24px; border: none; background: transparent;
+  color: var(--muted-foreground); border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.date-cal-btn svg { width: 14px; height: 14px; }
+.date-cal-btn:hover { background: var(--accent); color: var(--accent-foreground); }
+.date-cal-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.entry-edit-date { width: 144px; flex: none; }
+.entry-edit-date .tag-popover { width: 220px; padding: 10px; }
+.entry-edit-time-range { display: flex; align-items: center; gap: 6px; }
+.entry-edit-time { width: 92px; flex: none; }
+.entry-edit-time-sep { color: var(--muted-foreground); font-size: 12px; }
+.entry-edit-tag { width: 128px; flex: none; }
+.entry-edit-rate { flex: 1 1 104px; min-width: 90px; }
+.entry-edit-actions { display: flex; gap: 6px; margin-left: auto; }
+
+.empty-state {
+  padding: 28px 4px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---------- screen 2: history ---------- */
+.history-toolbar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.btn.period-trigger { width: auto; padding: 0 12px; gap: 8px; }
+.search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 280px; }
+.search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--muted-foreground); }
+.search-wrap .input { padding-left: 32px; }
+.combo-wrap { position: relative; }
+.combo-trigger { width: 100%; justify-content: space-between; }
+.combo-trigger span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.btn.combo-trigger svg { width: 13px; height: 13px; color: var(--muted-foreground); flex: none; }
+.btn.tag-trigger { width: auto; padding: 0 12px; gap: 8px; }
+.tag-popover {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 20;
+  width: 232px; padding: 8px;
+  background: var(--popover); color: var(--popover-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(0,0,0,.16);
+}
+.tag-popover .input { height: 32px; font-size: 12px; margin-bottom: 6px; }
+.tag-options { display: flex; flex-direction: column; max-height: 216px; overflow-y: auto; gap: 1px; }
+.period-custom-box { display: block; }
+.tag-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px; border-radius: var(--radius-sm);
+  font-size: 13px; cursor: pointer; user-select: none;
+}
+.tag-option:hover { background: var(--accent); }
+.tag-option input { width: 14px; height: 14px; accent-color: var(--primary); flex: none; }
+.tag-option-add { color: var(--foreground); font-weight: 500; margin-top: 2px; }
+.tag-option-add svg { width: 14px; height: 14px; flex: none; color: var(--muted-foreground); }
+.tag-check-slot { width: 14px; height: 14px; flex: none; display: inline-flex; color: var(--foreground); }
+.tag-empty { padding: 10px 8px; font-size: 12px; color: var(--muted-foreground); }
+
+.history-body {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 20px;
+  row-gap: 36px;
+}
+.stat-tile { padding: 20px 20px; }
+.stat-label { font-size: 12px; color: var(--muted-foreground); margin-bottom: 8px; }
+.stat-value { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.stat-value.accent { color: var(--chart-1); }
+
+.cal-card { grid-column: span 1; }
+.day-panel { grid-column: span 2; }
+@media (max-width: 760px) {
+  .history-body { grid-template-columns: 1fr; }
+  .cal-card, .day-panel { grid-column: 1 / -1; }
+}
+@media (max-width: 420px) {
+  .field-grid { grid-template-columns: 1fr; }
+  .entry-edit-date, .entry-edit-tag { width: 100%; }
+}
+
+.search-group { margin-bottom: 26px; }
+.search-group:last-child { margin-bottom: 0; }
+.search-date {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted-foreground); margin-bottom: 10px;
+}
+.search-empty { padding: 40px 0; text-align: center; font-size: 13px; color: var(--muted-foreground); }
+
+.cal-card { padding: 14px; }
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-nav .month-label { font-size: 12.5px; font-weight: 600; }
+.cal-nav-btns { display: flex; gap: 4px; }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 2px; }
+.cal-weekdays span { font-size: 10px; font-weight: 500; color: var(--muted-foreground); text-align: center; padding: 3px 0; }
+.cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-day {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  min-width: 0;
+}
+.cal-day:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.cal-day .num { font-size: 10.5px; font-weight: 500; }
+.cal-day .hrs { font-size: 8.5px; font-weight: 600; color: var(--chart-1); }
+.cal-day[data-muted="true"] { color: var(--muted-foreground); }
+.cal-day[data-muted="true"] .num { color: var(--muted-foreground); }
+.cal-day[data-today="true"] { border-color: var(--chart-1); }
+.cal-day[data-selected="true"] { background: var(--primary); }
+.cal-day[data-selected="true"] .num { color: var(--primary-foreground); }
+.cal-day[data-selected="true"] .hrs { color: var(--primary-foreground); opacity: .75; }
+.cal-day[data-inrange="true"] { background: rgba(94, 177, 239, 0.18); border-radius: 0; }
+.cal-day:not([data-selected="true"]):hover { background: var(--accent); }
+
+.period-back { align-self: flex-start; height: 22px; padding: 0 4px; font-size: 11px; gap: 4px; margin-bottom: 2px; }
+.period-back svg { width: 12px; height: 12px; }
+.period-apply { width: 100%; margin-top: 8px; }
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <div class="wordmark">Time Tracker</div>
+    <div class="tabs">
+      <button class="tab" data-screen-tab="timer" data-active="true" onclick="showScreen('timer')">Таймер</button>
+      <button class="tab" data-screen-tab="history" onclick="showScreen('history')">История</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN 1 — TIMER ===================== -->
+  <section class="screen" data-screen="timer" data-active="true">
+    <div class="timer-layout">
+      <div class="card timer-card is-idle" id="timerCard">
+        <div id="idleView" class="idle-view">
+          <button class="btn btn-primary btn-play-big" onclick="startTimer()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            Начать запись
+          </button>
+        </div>
+
+        <div id="runningView" style="display:none">
+          <div class="rec-row" id="recRow"><span class="rec-dot"></span>Идёт запись</div>
+          <div class="timer-display tnum" id="timerDisplay">00:00:00</div>
+
+          <input class="title-input" id="titleInput" type="text" value="" placeholder="Без названия — 20.08, 15:47">
+
+          <div class="field-grid">
+            <div>
+              <span class="field-label">Тег / проект</span>
+              <div class="combo-wrap">
+                <button class="btn btn-outline combo-trigger" type="button" onclick="toggleProjectPopover(event)">
+                  <span id="projectTriggerLabel">Без тега</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="tag-popover" id="projectPopover" style="display:none">
+                  <input class="input" placeholder="Поиск или новый тег" oninput="renderProjectOptions(this.value)">
+                  <div class="tag-options" id="projectOptions"></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <span class="field-label">Ставка, ₽</span>
+              <input class="input" id="rateInput" type="text" value="" placeholder="Без оплаты" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="controls-row" id="controlsRow">
+            <button class="btn btn-icon btn-destructive-ghost" title="Сбросить без сохранения" onclick="showDiscardConfirm()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
+            </button>
+            <button class="btn btn-outline" id="pauseBtn" onclick="togglePause()">
+              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+              Пауза
+            </button>
+            <div class="spacer"></div>
+            <button class="btn btn-primary" onclick="saveEntry()">
+              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+              Сохранить
+            </button>
+          </div>
+
+          <div id="discardArea"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <!-- ===================== SCREEN 2 — HISTORY ===================== -->
+  <section class="screen" data-screen="history">
+    <div class="history-toolbar">
+      <div class="combo-wrap">
+        <button class="btn btn-outline combo-trigger period-trigger" onclick="togglePeriodPopover(event)">
+          <span id="periodLabel">5 июл – 5 авг</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="tag-popover" id="periodPopover" style="display:none">
+          <div class="tag-options" id="periodOptions"></div>
+        </div>
+      </div>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="input" id="searchInput" placeholder="Поиск по названию" oninput="handleSearch(this.value)">
+      </div>
+      <div class="combo-wrap">
+        <button class="btn btn-outline combo-trigger tag-trigger" onclick="toggleTagPopover(event)">
+          Теги<span id="tagCount"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="tag-popover" id="tagPopover" style="display:none">
+          <input class="input" placeholder="Поиск или новый тег" oninput="renderTagOptions(this.value)">
+          <div class="tag-options" id="tagOptions"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="history-body" id="historyGrid">
+      <div class="card stat-tile">
+        <div class="stat-label">Всего часов</div>
+        <div class="stat-value tnum" id="statHours">0ч</div>
+      </div>
+      <div class="card stat-tile">
+        <div class="stat-label">Заработано</div>
+        <div class="stat-value tnum accent" id="statMoney">0 ₽</div>
+      </div>
+      <div class="card stat-tile">
+        <div class="stat-label">Задач</div>
+        <div class="stat-value tnum" id="statCount">0</div>
+      </div>
+
+      <div class="card cal-card">
+        <div class="cal-nav">
+          <div class="cal-nav-btns">
+            <button class="btn btn-icon btn-ghost btn-sm" onclick="navCalMonth(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          </div>
+          <div class="month-label" id="calMonthLabel">Август 2026</div>
+          <div class="cal-nav-btns">
+            <button class="btn btn-icon btn-ghost btn-sm" onclick="navCalMonth(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+          </div>
+        </div>
+        <div class="cal-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+        <div class="cal-days" id="calDays"></div>
+      </div>
+
+      <div class="day-panel">
+        <div class="section-label" style="margin-top:0">
+          <span id="ddDate">19 августа</span>
+          <span class="day-panel-actions">
+            <span class="day-summary tnum" id="ddTotal">4.4ч · 6 333 ₽</span>
+            <button class="btn btn-secondary btn-sm" onclick="startAddEntry()">+ Добавить</button>
+          </span>
+        </div>
+        <div class="entry-list" id="ddList"></div>
+      </div>
+    </div>
+
+    <div id="searchResults" style="display:none"></div>
+  </section>
+</div>
+
+<script>
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.dataset.active = (s.dataset.screen === name) ? 'true' : 'false'; });
+  document.querySelectorAll('.tab').forEach(function(t){ t.dataset.active = (t.dataset.screenTab === name) ? 'true' : 'false'; });
+}
+
+var timerState = 'idle'; // idle | running
+var paused = false, seconds = 0;
+function fmt(s) {
+  var h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  function p(n){ return (n<10?'0':'')+n; }
+  return p(h)+':'+p(m)+':'+p(sec);
+}
+function tick() {
+  if (timerState === 'running' && !paused) {
+    seconds++;
+    document.getElementById('timerDisplay').textContent = fmt(seconds);
+  }
+}
+setInterval(tick, 1000);
+
+var tagLastRate = {};
+function updateRateForTag(tag) {
+  var input = document.getElementById('rateInput');
+  if (input) input.value = tag ? (tagLastRate[tag] || '') : '';
+}
+
+function startTimer() {
+  timerState = 'running';
+  seconds = 0;
+  paused = false;
+  document.getElementById('timerCard').classList.remove('is-idle');
+  document.getElementById('idleView').style.display = 'none';
+  document.getElementById('runningView').style.display = '';
+  document.getElementById('timerDisplay').textContent = fmt(0);
+  document.getElementById('titleInput').value = '';
+  document.getElementById('recRow').style.opacity = '1';
+  currentProjectTag = allTags.length ? allTags[0] : null;
+  document.getElementById('projectTriggerLabel').textContent = currentProjectTag || 'Без тега';
+  updateRateForTag(currentProjectTag);
+}
+function resetToIdle() {
+  timerState = 'idle';
+  paused = false;
+  seconds = 0;
+  document.getElementById('timerCard').classList.add('is-idle');
+  document.getElementById('runningView').style.display = 'none';
+  document.getElementById('idleView').style.display = '';
+  document.getElementById('discardArea').innerHTML = '';
+  document.getElementById('controlsRow').style.display = 'flex';
+  document.getElementById('pauseBtn').innerHTML =
+    '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>Пауза';
+}
+function saveEntry() {
+  var titleInput = document.getElementById('titleInput');
+  var titleVal = titleInput.value.trim() || titleInput.placeholder;
+  var rateVal = document.getElementById('rateInput').value.trim();
+  if (rateVal && currentProjectTag) tagLastRate[currentProjectTag] = rateVal;
+
+  var now = new Date();
+  var startD = new Date(now.getTime() - seconds * 1000);
+  var startStr = pad2(startD.getHours()) + ':' + pad2(startD.getMinutes());
+  var endStr = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+  var durH = seconds / 3600;
+  var money = rateVal ? formatMoney(Math.round(durH * (parseInt(rateVal.replace(/\D/g, ''), 10) || 0))) : null;
+  var entry = {
+    title: titleVal,
+    tag: currentProjectTag || 'Без тега',
+    time: startStr + '–' + endStr,
+    start: startStr,
+    end: endStr,
+    date: TODAY_KEY,
+    rate: rateVal || null,
+    money: money
+  };
+  if (!dayDetails[TODAY_KEY]) dayDetails[TODAY_KEY] = { date: dayHeading(TODAY_KEY), total: '', entries: [] };
+  dayDetails[TODAY_KEY].entries.push(entry);
+  recomputeDayTotal(TODAY_KEY);
+  buildCalendar();
+  if (currentDateKey === TODAY_KEY) renderDay(TODAY_KEY);
+  updateStats();
+
+  showToast('Запись сохранена');
+  resetToIdle();
+}
+function showToast(text) {
+  var el = document.getElementById('toast');
+  el.innerHTML = CHECK_SVG + '<span>' + escHtml(text) + '</span>';
+  el.style.display = 'flex';
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.style.display = 'none'; }, 2200);
+}
+function togglePause() {
+  paused = !paused;
+  var btn = document.getElementById('pauseBtn');
+  btn.innerHTML = paused
+    ? '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>Продолжить'
+    : '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>Пауза';
+  document.getElementById('recRow').style.opacity = paused ? '.5' : '1';
+}
+function showDiscardConfirm() {
+  document.getElementById('controlsRow').style.display = 'none';
+  document.getElementById('discardArea').innerHTML =
+    '<div class="discard-confirm"><span>Сбросить текущую запись? <strong>' + fmt(seconds).replace(/^00:/,'') + '</strong> пропадёт без сохранения.</span>' +
+    '<div class="discard-confirm-actions">' +
+      '<button class="btn btn-sm btn-destructive-ghost" onclick="resetToIdle()">Да, сбросить</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="hideDiscardConfirm()">Отмена</button>' +
+    '</div></div>';
+}
+function hideDiscardConfirm() {
+  document.getElementById('controlsRow').style.display = 'flex';
+  document.getElementById('discardArea').innerHTML = '';
+}
+
+/* ---- icons ---- */
+var PENCIL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+var CLOSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>';
+var TRASH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>';
+var PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>';
+var CAL_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+var CHEVRON_LEFT_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+var CHEVRON_RIGHT_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+var CHEVRON_DOWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+
+/* ---- date utilities (shared by sidebar calendar, entry date-field, period picker) ---- */
+var MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+var MONTH_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+var MONTH_SHORT_GEN = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+var TODAY_Y = 2026, TODAY_M = 7, TODAY_D = 20;
+var TODAY_KEY = isoDate(TODAY_Y, TODAY_M, TODAY_D);
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function isoDate(y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); }
+function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
+function firstWeekdayMon(y, m) { return (new Date(y, m, 1).getDay() + 6) % 7; }
+function monthGridCells(y, m) {
+  var firstWd = firstWeekdayMon(y, m);
+  var total = daysInMonth(y, m);
+  var prevY = m === 0 ? y - 1 : y, prevM = m === 0 ? 11 : m - 1;
+  var prevTotal = daysInMonth(prevY, prevM);
+  var cells = [];
+  for (var i = firstWd; i > 0; i--) cells.push({ num: prevTotal - i + 1, muted: true });
+  for (var d = 1; d <= total; d++) cells.push({ num: d, muted: false, key: isoDate(y, m, d) });
+  var rem = (7 - (cells.length % 7)) % 7;
+  for (var t = 1; t <= rem; t++) cells.push({ num: t, muted: true });
+  return cells;
+}
+function dayHeading(dateKey) {
+  var p = dateKey.split('-');
+  return parseInt(p[2], 10) + ' ' + MONTH_GEN[parseInt(p[1], 10) - 1];
+}
+function formatShortDate(dateKey) {
+  var p = dateKey.split('-');
+  return parseInt(p[2], 10) + ' ' + MONTH_SHORT_GEN[parseInt(p[1], 10) - 1];
+}
+
+/* ---- entry-edit date field: typeable text + calendar popover, own month/year per instance ---- */
+var datePickerYear = {}, datePickerMonth = {}, datePickerDay = {};
+function formatDateInput(y, m, d) { return pad2(d) + '.' + pad2(m + 1) + '.' + y; }
+function dateFieldHtml(idBase, y, m, d) {
+  datePickerYear[idBase] = y; datePickerMonth[idBase] = m; datePickerDay[idBase] = d;
+  return '<div class="combo-wrap date-field entry-edit-date">' +
+    '<input type="text" class="input" id="et-date-' + idBase + '" value="' + formatDateInput(y, m, d) + '" placeholder="ДД.ММ.ГГГГ" inputmode="numeric" oninput="parseTypedDate(\'' + idBase + '\', this.value)">' +
+    '<button type="button" class="date-cal-btn" onclick="toggleDatePopover(\'' + idBase + '\', event)" title="Открыть календарь">' + CAL_ICON_SVG + '</button>' +
+    '<div class="tag-popover" id="datePop-' + idBase + '" style="display:none">' +
+      '<div class="cal-nav" style="margin-bottom:6px">' +
+        '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="navDatePicker(\'' + idBase + '\',-1)">' + CHEVRON_LEFT_SVG + '</button>' +
+        '<div class="month-label" id="dateMonthLabel-' + idBase + '">' + MONTH_NAMES[m] + ' ' + y + '</div>' +
+        '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="navDatePicker(\'' + idBase + '\',1)">' + CHEVRON_RIGHT_SVG + '</button>' +
+      '</div>' +
+      '<div class="cal-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>' +
+      '<div class="cal-days" id="dateDays-' + idBase + '"></div>' +
+    '</div>' +
+  '</div>';
+}
+function parseTypedDate(idBase, value) {
+  var m = value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (m) {
+    var d = parseInt(m[1], 10), mo = parseInt(m[2], 10) - 1, y = parseInt(m[3], 10);
+    if (d >= 1 && d <= 31 && mo >= 0 && mo <= 11) { datePickerDay[idBase] = d; datePickerMonth[idBase] = mo; datePickerYear[idBase] = y; }
+  }
+}
+function readPickedDate(idBase) {
+  var input = document.getElementById('et-date-' + idBase);
+  if (input) {
+    var m = input.value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if (m) {
+      var d = parseInt(m[1], 10), mo = parseInt(m[2], 10) - 1, y = parseInt(m[3], 10);
+      if (d >= 1 && d <= 31 && mo >= 0 && mo <= 11) return isoDate(y, mo, d);
+    }
+  }
+  if (datePickerYear[idBase] != null) return isoDate(datePickerYear[idBase], datePickerMonth[idBase], datePickerDay[idBase]);
+  return currentDateKey;
+}
+function toggleDatePopover(idBase, e) {
+  e.stopPropagation();
+  var popId = 'datePop-' + idBase;
+  var pop = document.getElementById(popId);
+  var willOpen = pop.style.display === 'none';
+  closeOtherPopovers(popId);
+  pop.style.display = willOpen ? 'block' : 'none';
+  if (willOpen) buildMiniCalendar(idBase);
+}
+function navDatePicker(idBase, delta) {
+  var m = datePickerMonth[idBase] + delta, y = datePickerYear[idBase];
+  if (m < 0) { m = 11; y--; } else if (m > 11) { m = 0; y++; }
+  datePickerMonth[idBase] = m; datePickerYear[idBase] = y;
+  document.getElementById('dateMonthLabel-' + idBase).textContent = MONTH_NAMES[m] + ' ' + y;
+  buildMiniCalendar(idBase);
+}
+function buildMiniCalendar(idBase) {
+  var y = datePickerYear[idBase], m = datePickerMonth[idBase], selDay = datePickerDay[idBase];
+  var cells = monthGridCells(y, m);
+  document.getElementById('dateDays-' + idBase).innerHTML = cells.map(function(c){
+    var isSel = !c.muted && c.num === selDay;
+    return '<button type="button" class="cal-day" data-muted="' + c.muted + '" data-selected="' + isSel + '"' +
+      (!c.muted ? ' onclick="pickDate(\'' + idBase + '\',' + c.num + ')"' : '') + '>' +
+      '<span class="num">' + c.num + '</span></button>';
+  }).join('');
+}
+function pickDate(idBase, day) {
+  datePickerDay[idBase] = day;
+  var input = document.getElementById('et-date-' + idBase);
+  if (input) input.value = formatDateInput(datePickerYear[idBase], datePickerMonth[idBase], day);
+  document.getElementById('datePop-' + idBase).style.display = 'none';
+}
+
+var allTags = [];
+function tagExists(name) { return allTags.some(function(t){ return t.toLowerCase() === name.toLowerCase(); }); }
+function jsEsc(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+/* ---- entry-edit tag field: same search-or-create combo as elsewhere, own state per instance ---- */
+var entryTagValue = {};
+function tagFieldHtml(idBase, tagValue) {
+  var val = tagValue || 'Без тега';
+  entryTagValue[idBase] = val;
+  return '<div class="combo-wrap entry-edit-tag">' +
+    '<button type="button" class="btn btn-outline combo-trigger" onclick="toggleEntryTagPopover(\'' + idBase + '\', event)">' +
+      '<span id="entryTagLabel-' + idBase + '">' + escHtml(val) + '</span>' + CHEVRON_DOWN_SVG +
+    '</button>' +
+    '<div class="tag-popover" id="entryTagPop-' + idBase + '" style="display:none">' +
+      '<input class="input" placeholder="Поиск или новый тег" oninput="renderEntryTagOptions(\'' + idBase + '\', this.value)">' +
+      '<div class="tag-options" id="entryTagOptions-' + idBase + '"></div>' +
+    '</div>' +
+  '</div>';
+}
+function toggleEntryTagPopover(idBase, e) {
+  e.stopPropagation();
+  var popId = 'entryTagPop-' + idBase;
+  var pop = document.getElementById(popId);
+  var willOpen = pop.style.display === 'none';
+  closeOtherPopovers(popId);
+  pop.style.display = willOpen ? 'block' : 'none';
+  if (willOpen) renderEntryTagOptions(idBase, '');
+}
+function renderEntryTagOptions(idBase, filterStr) {
+  filterStr = filterStr || '';
+  var q = filterStr.toLowerCase();
+  var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
+  var rows = list.map(function(t){
+    var active = t === entryTagValue[idBase];
+    return '<div class="tag-option" onclick="selectEntryTag(\'' + idBase + '\',\'' + jsEsc(t) + '\')">' +
+      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t) + '</div>';
+  }).join('');
+  var html = rows;
+  if (filterStr && !tagExists(filterStr)) {
+    html += '<div class="tag-option tag-option-add" onclick="createAndSelectEntryTag(\'' + idBase + '\',\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + 'Добавить «' + escHtml(filterStr) + '»</div>';
+  } else if (!rows) {
+    html = '<div class="tag-empty">Тегов пока нет</div>';
+  }
+  document.getElementById('entryTagOptions-' + idBase).innerHTML = html;
+}
+function selectEntryTag(idBase, t) {
+  entryTagValue[idBase] = t;
+  document.getElementById('entryTagLabel-' + idBase).textContent = t;
+  document.getElementById('entryTagPop-' + idBase).style.display = 'none';
+}
+function createAndSelectEntryTag(idBase, name) {
+  name = name.trim();
+  if (!name) return;
+  if (!tagExists(name)) { allTags.push(name); saveState(); }
+  selectEntryTag(idBase, name);
+}
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ---- shared row rendering (display + inline edit) ---- */
+function displayRowHtml(e, startFn, i) {
+  return '<div class="entry-row">' +
+    '<div class="entry-main"><div class="entry-title">' + escHtml(e.title) + '</div>' +
+    '<div class="entry-meta"><span class="badge badge-tag">' + escHtml(e.tag) + '</span></div></div>' +
+    '<div class="entry-time tnum">' + e.time + '</div>' +
+    '<div class="entry-money tnum' + (e.money ? '' : ' muted') + '">' + (e.money || '—') + '</div>' +
+    (startFn ? '<button class="row-edit-btn" onclick="' + startFn + '(' + i + ')" title="Редактировать">' + PENCIL_SVG + '</button>' : '') +
+    '</div>';
+}
+function editFieldsHtml(idBase, e, tagValue) {
+  var parts = (e.time || '–').split('–');
+  var start = e.start || (parts[0] || '').trim();
+  var end = e.end || (parts[1] || '').trim();
+  var dk = e.date || currentDateKey;
+  var dp = dk.split('-');
+  var dY = parseInt(dp[0], 10), dM = parseInt(dp[1], 10) - 1, dD = parseInt(dp[2], 10);
+  return dateFieldHtml(idBase, dY, dM, dD) +
+    '<div class="entry-edit-time-range">' +
+      '<input type="text" class="input entry-edit-time tnum" id="et-start-' + idBase + '" value="' + start + '" placeholder="ЧЧ:ММ" inputmode="numeric">' +
+      '<span class="entry-edit-time-sep">–</span>' +
+      '<input type="text" class="input entry-edit-time tnum" id="et-end-' + idBase + '" value="' + end + '" placeholder="ЧЧ:ММ" inputmode="numeric">' +
+    '</div>' +
+    tagFieldHtml(idBase, tagValue) +
+    '<input class="input entry-edit-rate tnum" id="et-rate-' + idBase + '" value="' + (e.rate || '') + '" placeholder="Без оплаты" inputmode="numeric">';
+}
+function editRowHtml(e, i, idPrefix, saveFn, cancelFn, delFn, askDeleteFn, cancelConfirmFn, confirming) {
+  var idBase = idPrefix + i;
+  if (confirming) {
+    return '<div class="entry-edit-card">' +
+      '<div class="discard-confirm">' +
+        '<span>Удалить «' + escHtml(e.title) + '»? Это действие нельзя отменить.</span>' +
+        '<div class="discard-confirm-actions">' +
+          '<button class="btn btn-sm btn-destructive-ghost" onclick="' + delFn + '(' + i + ')">Да, удалить</button>' +
+          '<button class="btn btn-sm btn-outline" onclick="' + cancelConfirmFn + '()">Отмена</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  return '<div class="entry-edit-card">' +
+    '<input class="entry-edit-title-line" id="et-title-' + idBase + '" value="' + escHtml(e.title) + '">' +
+    '<div class="entry-edit-fields">' +
+      editFieldsHtml(idBase, e, e.tag) +
+      '<div class="entry-edit-actions">' +
+        '<button class="row-edit-btn" onclick="' + saveFn + '(' + i + ')" title="Сохранить">' + CHECK_SVG + '</button>' +
+        '<button class="row-edit-btn" onclick="' + cancelFn + '()" title="Отмена">' + CLOSE_SVG + '</button>' +
+        '<button class="row-edit-btn row-edit-delete" onclick="' + askDeleteFn + '()" title="Удалить">' + TRASH_SVG + '</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+function newEntryRowHtml() {
+  var blank = { time: '10:00–11:00' };
+  return '<div class="entry-edit-card">' +
+    '<input class="entry-edit-title-line" id="et-title-new" placeholder="Название задачи">' +
+    '<div class="entry-edit-fields">' +
+      editFieldsHtml('new', blank, allTags[0]) +
+      '<div class="entry-edit-actions">' +
+        '<button class="row-edit-btn" onclick="saveNewEntry()" title="Сохранить">' + CHECK_SVG + '</button>' +
+        '<button class="row-edit-btn" onclick="cancelAddEntry()" title="Отмена">' + CLOSE_SVG + '</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+function emptyStateHtml(text) {
+  return '<div class="empty-state">' + text + '</div>';
+}
+
+/* ---- time / money helpers ---- */
+function timeToMinutes(t) { var p = (t || '0:0').split(':'); return (+p[0] || 0) * 60 + (+p[1] || 0); }
+function durationHours(start, end) { var d = (timeToMinutes(end) - timeToMinutes(start)) / 60; return d > 0 ? Math.round(d * 100) / 100 : 0; }
+function parseMoney(m) { return m ? (parseInt(String(m).replace(/\D/g, ''), 10) || 0) : 0; }
+function formatMoney(n) { return n ? n.toLocaleString('ru-RU') + ' ₽' : null; }
+function recomputeDayTotal(dateKey) {
+  var d = dayDetails[dateKey];
+  if (!d) return;
+  if (!d.entries.length) { d.total = ''; delete calData[dateKey]; saveState(); return; }
+  var totalH = 0, totalM = 0;
+  d.entries.forEach(function(e){
+    var parts = (e.time || '–').split('–');
+    var s = e.start || (parts[0] || '').trim();
+    var en = e.end || (parts[1] || '').trim();
+    totalH += durationHours(s, en);
+    totalM += parseMoney(e.money);
+  });
+  totalH = Math.round(totalH * 10) / 10;
+  d.total = totalM ? totalH + 'ч · ' + formatMoney(totalM) : totalH + 'ч';
+  calData[dateKey] = totalH;
+  saveState();
+}
+var STORAGE_KEY = 'timeTrackerData_v1';
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      dayDetails: dayDetails,
+      calData: calData,
+      allTags: allTags,
+      tagLastRate: tagLastRate
+    }));
+  } catch (err) { /* storage unavailable or full — nothing else to do */ }
+}
+function loadState() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    var data = JSON.parse(raw);
+    if (data.dayDetails) dayDetails = data.dayDetails;
+    if (data.calData) calData = data.calData;
+    if (data.allTags) allTags = data.allTags;
+    if (data.tagLastRate) tagLastRate = data.tagLastRate;
+  } catch (err) { /* corrupted data — start fresh rather than crash */ }
+}
+
+/* ---- calendar + day detail ---- */
+var calData = {};
+var dayDetails = {};
+var calYear = TODAY_Y, calMonth = TODAY_M;
+var currentDateKey = TODAY_KEY;
+var ddEditingIndex = -1;
+var ddDeleteConfirming = false;
+var addingEntry = false;
+function renderDay(dateKey) {
+  currentDateKey = dateKey;
+  ddEditingIndex = -1;
+  ddDeleteConfirming = false;
+  addingEntry = false;
+  document.getElementById('ddDate').textContent = dayHeading(dateKey);
+  document.getElementById('ddTotal').textContent = dayDetails[dateKey] ? dayDetails[dateKey].total : '';
+  renderDdList();
+}
+function renderDdList() {
+  var d = dayDetails[currentDateKey];
+  var html = addingEntry ? newEntryRowHtml() : '';
+  if (d && d.entries.length) {
+    html += d.entries.map(function(e, i){
+      return i === ddEditingIndex
+        ? editRowHtml(e, i, 'dd', 'saveDdEdit', 'cancelDdEdit', 'deleteDdEntry', 'askDeleteDd', 'cancelDeleteConfirmDd', ddDeleteConfirming)
+        : displayRowHtml(e, 'startDdEdit', i);
+    }).join('');
+  }
+  document.getElementById('ddList').innerHTML = html || emptyStateHtml('Нет записей за этот день');
+}
+function startDdEdit(i) { ddEditingIndex = i; ddDeleteConfirming = false; renderDdList(); }
+function cancelDdEdit() { ddEditingIndex = -1; ddDeleteConfirming = false; renderDdList(); }
+function askDeleteDd() { ddDeleteConfirming = true; renderDdList(); }
+function cancelDeleteConfirmDd() { ddDeleteConfirming = false; renderDdList(); }
+function startAddEntry() { addingEntry = true; renderDdList(); }
+function cancelAddEntry() { addingEntry = false; renderDdList(); }
+function saveNewEntry() {
+  var title = document.getElementById('et-title-new').value.trim() || 'Без названия';
+  var tag = entryTagValue['new'] || 'Без тега';
+  var start = document.getElementById('et-start-new').value || '10:00';
+  var end = document.getElementById('et-end-new').value || '11:00';
+  var rate = document.getElementById('et-rate-new').value.trim();
+  var dateKey = readPickedDate('new');
+  var durH = durationHours(start, end);
+  var money = rate ? formatMoney(Math.round(durH * (parseInt(rate.replace(/\D/g, ''), 10) || 0))) : null;
+  var entry = { title: title, tag: tag, time: start + '–' + end, start: start, end: end, date: dateKey, rate: rate || null, money: money };
+  if (!dayDetails[dateKey]) dayDetails[dateKey] = { date: dayHeading(dateKey), total: '', entries: [] };
+  dayDetails[dateKey].entries.push(entry);
+  recomputeDayTotal(dateKey);
+  buildCalendar();
+  renderDay(currentDateKey);
+  updateStats();
+}
+function saveDdEdit(i) {
+  var idBase = 'dd' + i;
+  var e = dayDetails[currentDateKey].entries[i];
+  var title = document.getElementById('et-title-' + idBase).value.trim();
+  if (title) e.title = title;
+  e.tag = entryTagValue[idBase] || e.tag;
+  var start = document.getElementById('et-start-' + idBase).value || e.start;
+  var end = document.getElementById('et-end-' + idBase).value || e.end;
+  e.start = start; e.end = end; e.time = start + '–' + end;
+  var rateRaw = document.getElementById('et-rate-' + idBase).value.trim();
+  var durH = durationHours(start, end);
+  e.rate = rateRaw || null;
+  e.money = rateRaw ? formatMoney(Math.round(durH * (parseInt(rateRaw.replace(/\D/g, ''), 10) || 0))) : null;
+  var newDateKey = readPickedDate(idBase);
+  e.date = newDateKey;
+
+  if (newDateKey !== currentDateKey) {
+    dayDetails[currentDateKey].entries.splice(i, 1);
+    recomputeDayTotal(currentDateKey);
+    if (!dayDetails[newDateKey]) dayDetails[newDateKey] = { date: dayHeading(newDateKey), total: '', entries: [] };
+    dayDetails[newDateKey].entries.push(e);
+    recomputeDayTotal(newDateKey);
+  } else {
+    recomputeDayTotal(currentDateKey);
+  }
+  buildCalendar();
+  renderDay(currentDateKey);
+  updateStats();
+}
+function deleteDdEntry(i) {
+  dayDetails[currentDateKey].entries.splice(i, 1);
+  recomputeDayTotal(currentDateKey);
+  buildCalendar();
+  renderDay(currentDateKey);
+  updateStats();
+}
+function buildCalendar() {
+  document.getElementById('calMonthLabel').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+  var cells = monthGridCells(calYear, calMonth);
+  document.getElementById('calDays').innerHTML = cells.map(function(c){
+    var hrs = !c.muted && calData[c.key] ? calData[c.key] : null;
+    var isToday = !c.muted && calYear === TODAY_Y && calMonth === TODAY_M && c.num === TODAY_D;
+    var isSelected = !c.muted && c.key === currentDateKey;
+    return '<button class="cal-day" data-muted="'+c.muted+'" data-today="'+isToday+'" data-selected="'+isSelected+'"' +
+      (!c.muted ? ' onclick="selectDay(\''+c.key+'\', this)"' : '') + '>' +
+      '<span class="num">'+c.num+'</span>' + (hrs ? '<span class="hrs tnum">'+hrs+'ч</span>' : '') +
+      '</button>';
+  }).join('');
+}
+function navCalMonth(delta) {
+  calMonth += delta;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  else if (calMonth > 11) { calMonth = 0; calYear++; }
+  buildCalendar();
+}
+function selectDay(dateKey, el) {
+  document.querySelectorAll('#calDays .cal-day').forEach(function(c){ c.dataset.selected = 'false'; });
+  el.dataset.selected = 'true';
+  renderDay(dateKey);
+}
+buildCalendar();
+renderDay(TODAY_KEY);
+
+/* ---- tag combos: History filter (multi-select) + Timer field (single-select), both can create ---- */
+var selectedTags = {};
+var currentProjectTag = null;
+
+function closeOtherPopovers(exceptId) {
+  document.querySelectorAll('.tag-popover').forEach(function(p){ if (p.id !== exceptId) p.style.display = 'none'; });
+}
+
+function toggleTagPopover(e) {
+  e.stopPropagation();
+  var pop = document.getElementById('tagPopover');
+  var willOpen = pop.style.display === 'none';
+  closeOtherPopovers('tagPopover');
+  pop.style.display = willOpen ? 'block' : 'none';
+  if (willOpen) renderTagOptions('');
+}
+function renderTagOptions(filterStr) {
+  filterStr = filterStr || '';
+  var q = filterStr.toLowerCase();
+  var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
+  var rows = list.map(function(t){
+    var id = 'tagopt-' + t.replace(/[^a-zA-Zа-яА-Я0-9]/g, '');
+    return '<label class="tag-option" for="' + id + '"><input type="checkbox" id="' + id + '" ' +
+      (selectedTags[t] ? 'checked' : '') + ' onchange="toggleTag(\'' + jsEsc(t) + '\')">' + escHtml(t) + '</label>';
+  }).join('');
+  var html = rows;
+  if (filterStr && !tagExists(filterStr)) {
+    html += '<div class="tag-option tag-option-add" onclick="createAndSelectTag(\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + 'Добавить «' + escHtml(filterStr) + '»</div>';
+  } else if (!rows) {
+    html = '<div class="tag-empty">Тегов пока нет</div>';
+  }
+  document.getElementById('tagOptions').innerHTML = html;
+}
+function toggleTag(t) {
+  selectedTags[t] = !selectedTags[t];
+  updateTagTrigger();
+  updateStats();
+}
+function updateTagTrigger() {
+  var n = Object.keys(selectedTags).filter(function(t){ return selectedTags[t]; }).length;
+  document.getElementById('tagCount').textContent = n ? ' · ' + n : '';
+}
+function createAndSelectTag(name) {
+  name = name.trim();
+  if (!name) return;
+  if (!tagExists(name)) { allTags.push(name); saveState(); }
+  selectedTags[name] = true;
+  updateTagTrigger();
+  updateStats();
+  var input = document.querySelector('#tagPopover input.input');
+  if (input) input.value = '';
+  renderTagOptions('');
+}
+updateTagTrigger();
+
+function toggleProjectPopover(e) {
+  e.stopPropagation();
+  var pop = document.getElementById('projectPopover');
+  var willOpen = pop.style.display === 'none';
+  closeOtherPopovers('projectPopover');
+  pop.style.display = willOpen ? 'block' : 'none';
+  if (willOpen) renderProjectOptions('');
+}
+function renderProjectOptions(filterStr) {
+  filterStr = filterStr || '';
+  var q = filterStr.toLowerCase();
+  var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
+  var rows = list.map(function(t){
+    var active = t === currentProjectTag;
+    return '<div class="tag-option" onclick="selectProject(\'' + jsEsc(t) + '\')">' +
+      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t) + '</div>';
+  }).join('');
+  var html = rows;
+  if (filterStr && !tagExists(filterStr)) {
+    html += '<div class="tag-option tag-option-add" onclick="createAndSelectProject(\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + 'Добавить «' + escHtml(filterStr) + '»</div>';
+  } else if (!rows) {
+    html = '<div class="tag-empty">Тегов пока нет</div>';
+  }
+  document.getElementById('projectOptions').innerHTML = html;
+}
+function selectProject(t) {
+  currentProjectTag = t;
+  document.getElementById('projectTriggerLabel').textContent = t;
+  document.getElementById('projectPopover').style.display = 'none';
+  updateRateForTag(t);
+}
+function createAndSelectProject(name) {
+  name = name.trim();
+  if (!name) return;
+  if (!tagExists(name)) { allTags.push(name); saveState(); }
+  selectProject(name);
+}
+
+/* ---- period picker ---- */
+function weekdayOfMon(y, m, d) { return (new Date(y, m, d).getDay() + 6) % 7; }
+function addDaysKey(key, delta) {
+  var p = key.split('-').map(Number);
+  var dt = new Date(p[0], p[1] - 1, p[2] + delta);
+  return isoDate(dt.getFullYear(), dt.getMonth(), dt.getDate());
+}
+var WEEK_DOW = weekdayOfMon(TODAY_Y, TODAY_M, TODAY_D);
+var WEEK_START_KEY = addDaysKey(TODAY_KEY, -WEEK_DOW);
+var WEEK_END_KEY = addDaysKey(WEEK_START_KEY, 6);
+var MONTH_START_KEY = isoDate(TODAY_Y, TODAY_M, 1);
+var MONTH_END_KEY = isoDate(TODAY_Y, TODAY_M, daysInMonth(TODAY_Y, TODAY_M));
+var LAST_MONTH_IDX = TODAY_M === 0 ? 11 : TODAY_M - 1;
+var LAST_MONTH_YEAR = TODAY_M === 0 ? TODAY_Y - 1 : TODAY_Y;
+var LAST_MONTH_START_KEY = isoDate(LAST_MONTH_YEAR, LAST_MONTH_IDX, 1);
+var LAST_MONTH_END_KEY = isoDate(LAST_MONTH_YEAR, LAST_MONTH_IDX, daysInMonth(LAST_MONTH_YEAR, LAST_MONTH_IDX));
+var LAST30_START_KEY = addDaysKey(TODAY_KEY, -29);
+var periodPresets = [
+  { label: 'Сегодня', start: TODAY_KEY, end: TODAY_KEY },
+  { label: 'Эта неделя', start: WEEK_START_KEY, end: WEEK_END_KEY },
+  { label: 'Этот месяц', start: MONTH_START_KEY, end: MONTH_END_KEY },
+  { label: 'Прошлый месяц', start: LAST_MONTH_START_KEY, end: LAST_MONTH_END_KEY },
+  { label: 'Последние 30 дней', start: LAST30_START_KEY, end: TODAY_KEY }
+];
+function presetRangeLabel(p) {
+  return p.start === p.end ? formatShortDate(p.start) : formatShortDate(p.start) + ' – ' + formatShortDate(p.end);
+}
+var currentPeriodStart = periodPresets[4].start, currentPeriodEnd = periodPresets[4].end;
+var currentPeriodRange = presetRangeLabel(periodPresets[4]);
+document.getElementById('periodLabel').textContent = currentPeriodRange;
+updateStats();
+var periodMode = 'presets'; // 'presets' | 'custom'
+var customRangeStartKey = null;
+var customRangeEndKey = null;
+var periodCalYear = TODAY_Y, periodCalMonth = TODAY_M;
+
+/* ---- stats for the selected period ---- */
+function computeStatsForRange(startKey, endKey) {
+  var activeTags = Object.keys(selectedTags).filter(function(t){ return selectedTags[t]; });
+  var totalH = 0, totalM = 0, count = 0;
+  Object.keys(dayDetails).forEach(function(key){
+    if (key < startKey || key > endKey) return;
+    dayDetails[key].entries.forEach(function(e){
+      if (activeTags.length && activeTags.indexOf(e.tag) === -1) return;
+      var parts = (e.time || '–').split('–');
+      var s = e.start || (parts[0] || '').trim();
+      var en = e.end || (parts[1] || '').trim();
+      totalH += durationHours(s, en);
+      totalM += parseMoney(e.money);
+      count++;
+    });
+  });
+  return { hours: Math.round(totalH * 10) / 10, money: totalM, count: count };
+}
+function updateStats() {
+  var stats = computeStatsForRange(currentPeriodStart, currentPeriodEnd);
+  document.getElementById('statHours').textContent = stats.hours + 'ч';
+  document.getElementById('statMoney').textContent = (stats.money ? stats.money.toLocaleString('ru-RU') : '0') + ' ₽';
+  document.getElementById('statCount').textContent = stats.count;
+}
+
+function togglePeriodPopover(e) {
+  e.stopPropagation();
+  var pop = document.getElementById('periodPopover');
+  var willOpen = pop.style.display === 'none';
+  closeOtherPopovers('periodPopover');
+  pop.style.display = willOpen ? 'block' : 'none';
+  if (willOpen) { periodMode = 'presets'; renderPeriodOptions(); }
+}
+function isCustomActive() {
+  return !periodPresets.some(function(p){ return p.start === currentPeriodStart && p.end === currentPeriodEnd; });
+}
+function renderPeriodOptions() {
+  var box = document.getElementById('periodOptions');
+  if (periodMode === 'custom') {
+    box.className = 'period-custom-box';
+    box.innerHTML =
+      '<button type="button" class="btn btn-ghost btn-sm period-back" onclick="backToPresets()">' + CHEVRON_LEFT_SVG + 'Пресеты</button>' +
+      '<div class="cal-nav" style="margin:6px 0">' +
+        '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="navPeriodCalMonth(-1)">' + CHEVRON_LEFT_SVG + '</button>' +
+        '<div class="month-label" id="periodMonthLabel">' + MONTH_NAMES[periodCalMonth] + ' ' + periodCalYear + '</div>' +
+        '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="navPeriodCalMonth(1)">' + CHEVRON_RIGHT_SVG + '</button>' +
+      '</div>' +
+      '<div class="cal-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>' +
+      '<div class="cal-days" id="periodCalDays"></div>' +
+      '<button type="button" class="btn btn-primary btn-sm period-apply" id="periodApplyBtn" onclick="applyCustomRange()">Применить</button>';
+    buildCustomRangeCalendar();
+    return;
+  }
+  box.className = 'tag-options';
+  var rows = periodPresets.map(function(p, idx){
+    var active = p.start === currentPeriodStart && p.end === currentPeriodEnd;
+    return '<div class="tag-option" onclick="selectPreset(' + idx + ')">' +
+      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(p.label) + '</div>';
+  }).join('');
+  rows += '<div class="tag-option" onclick="openCustomRange()">' +
+    '<span class="tag-check-slot">' + (isCustomActive() ? CHECK_SVG : '') + '</span>Свой период →</div>';
+  box.innerHTML = rows;
+}
+function selectPreset(idx) {
+  var p = periodPresets[idx];
+  selectPeriod(p.start, p.end, presetRangeLabel(p));
+}
+function openCustomRange() {
+  periodMode = 'custom';
+  if (isCustomActive()) {
+    customRangeStartKey = currentPeriodStart;
+    customRangeEndKey = currentPeriodEnd;
+  } else {
+    customRangeStartKey = null; customRangeEndKey = null;
+  }
+  var anchor = customRangeStartKey || isoDate(TODAY_Y, TODAY_M, TODAY_D);
+  var ap = anchor.split('-');
+  periodCalYear = parseInt(ap[0], 10);
+  periodCalMonth = parseInt(ap[1], 10) - 1;
+  renderPeriodOptions();
+}
+function backToPresets() {
+  periodMode = 'presets';
+  renderPeriodOptions();
+}
+function navPeriodCalMonth(delta) {
+  periodCalMonth += delta;
+  if (periodCalMonth < 0) { periodCalMonth = 11; periodCalYear--; }
+  else if (periodCalMonth > 11) { periodCalMonth = 0; periodCalYear++; }
+  document.getElementById('periodMonthLabel').textContent = MONTH_NAMES[periodCalMonth] + ' ' + periodCalYear;
+  buildCustomRangeCalendar();
+}
+function buildCustomRangeCalendar() {
+  var container = document.getElementById('periodCalDays');
+  var cells = monthGridCells(periodCalYear, periodCalMonth);
+  var lo = customRangeStartKey && customRangeEndKey ? (customRangeStartKey < customRangeEndKey ? customRangeStartKey : customRangeEndKey) : null;
+  var hi = customRangeStartKey && customRangeEndKey ? (customRangeStartKey < customRangeEndKey ? customRangeEndKey : customRangeStartKey) : null;
+  container.innerHTML = cells.map(function(c){
+    var isEndpoint = !c.muted && (c.key === customRangeStartKey || c.key === customRangeEndKey);
+    var inRange = !c.muted && lo && !isEndpoint && c.key > lo && c.key < hi;
+    return '<button type="button" class="cal-day" data-muted="' + c.muted + '" data-selected="' + isEndpoint + '" data-inrange="' + inRange + '"' +
+      (!c.muted ? ' onclick="pickRangeDay(\'' + c.key + '\')"' : '') + '>' +
+      '<span class="num">' + c.num + '</span></button>';
+  }).join('');
+}
+function pickRangeDay(key) {
+  if (!customRangeStartKey || customRangeEndKey) {
+    customRangeStartKey = key;
+    customRangeEndKey = null;
+  } else if (key < customRangeStartKey) {
+    customRangeEndKey = customRangeStartKey;
+    customRangeStartKey = key;
+  } else {
+    customRangeEndKey = key;
+  }
+  buildCustomRangeCalendar();
+}
+function applyCustomRange() {
+  if (!customRangeStartKey) return;
+  var endKey = customRangeEndKey || customRangeStartKey;
+  var label = endKey !== customRangeStartKey
+    ? formatShortDate(customRangeStartKey) + ' – ' + formatShortDate(endKey)
+    : formatShortDate(customRangeStartKey);
+  selectPeriod(customRangeStartKey, endKey, label);
+}
+function selectPeriod(startKey, endKey, range) {
+  currentPeriodStart = startKey;
+  currentPeriodEnd = endKey;
+  currentPeriodRange = range;
+  document.getElementById('periodLabel').textContent = range;
+  document.getElementById('periodPopover').style.display = 'none';
+  periodMode = 'presets';
+  updateStats();
+}
+document.addEventListener('click', function(e){
+  // composedPath (not contains()) because some option clicks replace their own
+  // parent's innerHTML — that detaches e.target from the tree before this
+  // bubbles here, and contains() would then wrongly say "clicked outside".
+  var path = e.composedPath ? e.composedPath() : [e.target];
+  document.querySelectorAll('.combo-wrap').forEach(function(wrap){
+    if (path.indexOf(wrap) === -1) {
+      var pop = wrap.querySelector('.tag-popover');
+      if (pop) pop.style.display = 'none';
+    }
+  });
+});
+
+/* ---- search (over real dayDetails, newest day first) ---- */
+function handleSearch(query) {
+  query = query.trim().toLowerCase();
+  var grid = document.getElementById('historyGrid');
+  var results = document.getElementById('searchResults');
+  if (!query) {
+    grid.style.display = '';
+    results.style.display = 'none';
+    return;
+  }
+  grid.style.display = 'none';
+  results.style.display = 'block';
+  renderSearchResults(query);
+}
+function renderSearchResults(query) {
+  var el = document.getElementById('searchResults');
+  var dateKeys = Object.keys(dayDetails).sort().reverse();
+  var groups = [];
+  dateKeys.forEach(function(key){
+    var matches = dayDetails[key].entries.filter(function(e){ return e.title.toLowerCase().indexOf(query) !== -1; });
+    if (matches.length) groups.push({ key: key, entries: matches });
+  });
+  if (!groups.length) {
+    el.innerHTML = '<div class="search-empty">Ничего не найдено по «' + escHtml(query) + '»</div>';
+    return;
+  }
+  el.innerHTML = groups.map(function(g){
+    var rows = g.entries.map(function(e){ return displayRowHtml(e, null, 0); }).join('');
+    return '<div class="search-group"><div class="search-date">' + dayHeading(g.key) + '</div><div class="entry-list">' + rows + '</div></div>';
+  }).join('');
+}
+
+/* ---- restore saved data on launch ---- */
+loadState();
+buildCalendar();
+renderDay(currentDateKey);
+updateStats();
+</script>
