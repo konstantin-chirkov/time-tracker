@@ -521,6 +521,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
 .cal-day {
   aspect-ratio: 1;
+  overflow: hidden;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
@@ -580,7 +581,7 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
 .sig-upload-hint { font-size: 12px; margin: 8px 0 0; }
 .sig-upload-error { font-size: 12px; color: var(--destructive); margin: 8px 0 0; }
 
-.tax-breakdown { background: var(--muted); border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; color: var(--muted-foreground); margin-top: 8px; line-height: 1.6; }
+.tax-breakdown { background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; color: var(--muted-foreground); margin-top: 8px; line-height: 1.6; }
 .tax-breakdown b { color: var(--foreground); }
 </style>
 
@@ -1307,6 +1308,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(function(s){ s.dataset.active = (s.dataset.screen === name) ? 'true' : 'false'; });
   document.querySelectorAll('.tab').forEach(function(t){ t.dataset.active = (t.dataset.screenTab === name) ? 'true' : 'false'; });
+  if (name === 'invoices' && typeof invRefreshResults === 'function') invRefreshResults();
 }
 
 var timerState = 'idle'; // idle | running
@@ -2853,12 +2855,27 @@ function refreshSigPreview() {
 }
 
 /* ---- invoice modal: open/close + gross-up tax breakdown ---- */
+var INV_FIELD_IDS = ['invFromName', 'invFromAddress', 'invFromEmail', 'invFromTaxId', 'invFromRequisites', 'invToName', 'invToAddress', 'invToEmail', 'invToTaxId', 'invToRequisites'];
+function invFieldsStorageKey(tag) { return 'tt_inv_fields_' + tag; }
+function loadInvFields(tag) {
+  var saved = (tag && tag !== INV_ALL_TAGS) ? localStorage.getItem(invFieldsStorageKey(tag)) : null;
+  var data = {};
+  if (saved) { try { data = JSON.parse(saved) || {}; } catch (err) { data = {}; } }
+  INV_FIELD_IDS.forEach(function (id) { document.getElementById(id).value = data[id] || ''; });
+}
+function saveInvFields(tag) {
+  if (!tag || tag === INV_ALL_TAGS) return;
+  var data = {};
+  INV_FIELD_IDS.forEach(function (id) { data[id] = document.getElementById(id).value.trim(); });
+  localStorage.setItem(invFieldsStorageKey(tag), JSON.stringify(data));
+}
 function openInvoiceModal() {
   if (!invoiceProjectTag) return;
   if (!sigCanvas) initSigPad();
   var invModalProjectLabel = invoiceProjectTag === INV_ALL_TAGS ? tr('inv.allEntries') : invoiceProjectTag;
   document.getElementById('invModalHint').textContent = tr('inv.project') + ': ' + invModalProjectLabel + ' · ' + tr('inv.period') + ': ' + invCurrentPeriodRange;
   document.getElementById('invTaxRate').value = '';
+  loadInvFields(invoiceProjectTag);
   clearSigPad_soft();
   setSigMode(localStorage.getItem('tt_sig_mode') || 'draw');
   updateTaxBreakdown();
@@ -2949,8 +2966,16 @@ function generateInvoicePdf() {
   var doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
   registerPdfFonts(doc);
   var pageW = doc.internal.pageSize.getWidth();
+  var pageH = doc.internal.pageSize.getHeight();
   var margin = 48;
   var y = 60;
+  function ensureSpace(neededHeight, onNewPage) {
+    if (y + neededHeight > pageH - margin) {
+      doc.addPage();
+      y = 56;
+      if (onNewPage) onNewPage();
+    }
+  }
 
   doc.setFont('Roboto', 'bold'); doc.setFontSize(22); doc.setTextColor(20);
   doc.text(tr('pdf.title'), margin, y);
@@ -2990,19 +3015,24 @@ function generateInvoicePdf() {
   var hoursX = pageW - margin - 110;
   var taskColW = hoursX - margin - 24;
 
-  doc.setDrawColor(220); doc.line(margin, y, pageW - margin, y);
-  y += 16;
-  doc.setFontSize(8); doc.setTextColor(140);
-  doc.text(tr('pdf.task'), margin, y);
-  doc.text(tr('pdf.hours'), hoursX, y, { align: 'right' });
-  doc.text(tr('pdf.amount'), rightEdge, y, { align: 'right' });
-  y += 10;
-  doc.setDrawColor(220); doc.line(margin, y, pageW - margin, y);
-  y += 20;
+  function drawTableHeader() {
+    doc.setDrawColor(220); doc.line(margin, y, pageW - margin, y);
+    y += 16;
+    doc.setFont('Roboto', 'normal'); doc.setFontSize(8); doc.setTextColor(140);
+    doc.text(tr('pdf.task'), margin, y);
+    doc.text(tr('pdf.hours'), hoursX, y, { align: 'right' });
+    doc.text(tr('pdf.amount'), rightEdge, y, { align: 'right' });
+    y += 10;
+    doc.setDrawColor(220); doc.line(margin, y, pageW - margin, y);
+    y += 20;
+    doc.setFont('Roboto', 'normal'); doc.setFontSize(10); doc.setTextColor(20);
+  }
+  drawTableHeader();
 
-  doc.setFont('Roboto', 'normal'); doc.setFontSize(10); doc.setTextColor(20);
   rows.forEach(function (r) {
     var titleLines = doc.splitTextToSize(r.title, taskColW);
+    var rowH = 18 * titleLines.length + 8;
+    ensureSpace(rowH, drawTableHeader);
     doc.text(titleLines, margin, y);
     doc.text(String(Math.round(r.hours * 10) / 10) + tr('unit.h'), hoursX, y, { align: 'right' });
     doc.text(formatMoney(r.money, curSymbol(r.currency)) || '—', rightEdge, y, { align: 'right' });
@@ -3010,11 +3040,13 @@ function generateInvoicePdf() {
   });
 
   y += 8;
+  ensureSpace(30 + (taxPct > 0 ? 72 : 52));
   doc.setDrawColor(220); doc.line(pageW - margin - 240, y, pageW - margin, y);
   y += 22;
 
   var totalsX = pageW - margin - 240;
   Object.keys(stats.moneyByCur).forEach(function (cur) {
+    ensureSpace(taxPct > 0 ? 72 : 52);
     var net = stats.moneyByCur[cur];
     var gross = taxPct > 0 ? net / (1 - taxPct / 100) : net;
     doc.setFont('Roboto', 'normal'); doc.setFontSize(10); doc.setTextColor(100);
@@ -3034,6 +3066,7 @@ function generateInvoicePdf() {
 
   if (sig) {
     try {
+      ensureSpace(90);
       y += 14;
       var sigRatio = activeSigMode === 'upload'
         ? (parseFloat(localStorage.getItem('tt_signature_upload_ratio')) || (140 / 50))
@@ -3052,6 +3085,7 @@ function generateInvoicePdf() {
   var fnameTag = invoiceProjectTag === INV_ALL_TAGS ? 'all' : invoiceProjectTag.replace(/\s+/g, '_');
   var fname = 'invoice_' + invCurrentPeriodStart + '_' + fnameTag + '.pdf';
   doc.save(fname);
+  saveInvFields(invoiceProjectTag);
   playGenerateAnimation(function () { closeInvoiceModal(); });
 }
 
