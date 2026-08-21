@@ -48,6 +48,7 @@ Works on both new Macs (M1/M2/M3/M4) and older Intel machines.
 - Search by task name and filter by tag
 - Add, edit, and delete past entries by hand, with a warning if a new entry's time overlaps an existing one
 - **Generate a PDF invoice** for a tag (project) or for all entries over a period — pick your period the same way you do in History, fill in your and your client's details freely (no fixed country format), set a tax rate and the invoice total is grossed up so that after tax you keep exactly what you tracked, and sign by drawing a signature or uploading an image
+- **Invoice history** — every generated invoice is logged with its project, period, and total, so you can redownload, edit, or delete it later, search past invoices by project, and get warned before accidentally billing the same project and period twice
 - Russian and English interface, switchable anytime
 - Light and dark theme, responsive layout
 
