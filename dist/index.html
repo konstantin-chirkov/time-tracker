@@ -484,7 +484,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 
 .history-body {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 20px;
   row-gap: 36px;
 }
@@ -518,12 +518,9 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .cal-nav-btns { display: flex; gap: 4px; }
 .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 2px; }
 .cal-weekdays span { font-size: 10px; font-weight: 500; color: var(--muted-foreground); text-align: center; padding: 3px 0; }
-.cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-days { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 34px; gap: 4px; }
 .cal-day {
-  aspect-ratio: 1;
   overflow: hidden;
-  padding: 3px;
-  box-sizing: border-box;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
