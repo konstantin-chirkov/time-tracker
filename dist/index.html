@@ -254,19 +254,39 @@ body {
 .btn-play-big { height: 44px; padding: 0 28px; font-size: 14px; }
 .btn-play-big svg { width: 16px; height: 16px; }
 
-.toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 8px;
-  background: var(--popover); color: var(--popover-foreground);
-  border: 1px solid var(--border); border-radius: var(--radius-lg);
-  padding: 10px 16px; font-size: 13px; font-weight: 500;
-  box-shadow: 0 12px 32px rgba(0,0,0,.18);
-  z-index: 50;
-  animation: toast-in .2s ease;
+/* ---------- save button: three-state motion (idle → saving → saved) ---------- */
+.save-btn-wrap { position: relative; }
+canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+#saveBtn { position: relative; transition: background .15s ease, opacity .15s ease, transform .15s cubic-bezier(.34,1.56,.64,1); }
+#saveBtn.is-saving { transform: scale(1.05); }
+.save-icon-slot { position: relative; width: 15px; height: 15px; flex: none; }
+.save-icon-slot svg { position: absolute; inset: 0; width: 15px; height: 15px; transition: opacity .18s ease, transform .22s cubic-bezier(.34,1.56,.64,1); }
+.save-icon-square { opacity: 1; transform: scale(1) rotate(0deg); }
+.save-icon-clock, .save-icon-check { opacity: 0; transform: scale(.4) rotate(-20deg); }
+#saveBtn.is-saving .save-icon-square { opacity: 0; transform: scale(.4) rotate(20deg); }
+#saveBtn.is-saving .save-icon-clock { opacity: 1; transform: scale(1) rotate(0deg); }
+#saveBtn.is-saved .save-icon-square { opacity: 0; transform: scale(.4) rotate(20deg); }
+#saveBtn.is-saved .save-icon-clock { opacity: 0; transform: scale(.4) rotate(20deg); }
+#saveBtn.is-saved .save-icon-check { opacity: 1; transform: scale(1) rotate(0deg); }
+@keyframes spinHandMin { to { transform: rotate(360deg); } }
+@keyframes spinHandHr { to { transform: rotate(360deg); } }
+.save-icon-clock line { transform-origin: 12px 12px; transform-box: view-box; }
+#saveBtn.is-saving .save-hand-min { animation: spinHandMin .5s linear infinite; }
+#saveBtn.is-saving .save-hand-hr { animation: spinHandHr 1.6s linear infinite; }
+
+.save-label { position: relative; display: inline-grid; }
+.save-label span { grid-area: 1 / 1; transition: opacity .16s ease, transform .2s ease; white-space: nowrap; }
+.save-label-idle { opacity: 1; transform: translateY(0); }
+.save-label-saving, .save-label-saved { opacity: 0; transform: translateY(6px); }
+#saveBtn.is-saving .save-label-idle { opacity: 0; transform: translateY(-6px); }
+#saveBtn.is-saving .save-label-saving { opacity: 1; transform: translateY(0); }
+#saveBtn.is-saved .save-label-saving { opacity: 0; transform: translateY(-6px); }
+#saveBtn.is-saved .save-label-saved { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  #saveBtn, .save-icon-slot svg, .save-label span { transition-duration: .01ms !important; }
+  .save-hand-min, .save-hand-hr { animation: none !important; }
 }
-.toast svg { width: 16px; height: 16px; color: var(--chart-1); flex: none; }
-@keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 
 .title-input {
   width: 100%;
@@ -516,7 +536,7 @@ body {
     <div class="timer-layout">
       <div class="card timer-card is-idle" id="timerCard">
         <div id="idleView" class="idle-view">
-          <button class="btn btn-primary btn-play-big" onclick="startTimer()">
+          <button class="btn btn-primary btn-play-big" onclick="withMorph(startTimer)">
             <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
             Начать запись
           </button>
@@ -557,10 +577,25 @@ body {
               Пауза
             </button>
             <div class="spacer"></div>
-            <button class="btn btn-primary" onclick="saveEntry()">
-              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-              Сохранить
-            </button>
+            <div class="save-btn-wrap">
+              <canvas class="save-burst" id="saveBurst" width="240" height="240"></canvas>
+              <button class="btn btn-primary" id="saveBtn" onclick="saveEntry()">
+                <span class="save-icon-slot">
+                  <svg class="save-icon-square" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                  <svg class="save-icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <line class="save-hand-min" x1="12" y1="12" x2="12" y2="6.5"/>
+                    <line class="save-hand-hr" x1="12" y1="12" x2="15.3" y2="12"/>
+                  </svg>
+                  <svg class="save-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                </span>
+                <span class="save-label">
+                  <span class="save-label-idle">Сохранить</span>
+                  <span class="save-label-saving">Сохранение…</span>
+                  <span class="save-label-saved">Сохранено</span>
+                </span>
+              </button>
+            </div>
           </div>
 
           <div id="discardArea"></div>
@@ -568,8 +603,6 @@ body {
       </div>
     </div>
   </section>
-
-  <div id="toast" class="toast" style="display:none"></div>
 
   <!-- ===================== SCREEN 2 — HISTORY ===================== -->
   <section class="screen" data-screen="history">
@@ -725,22 +758,135 @@ function saveEntry() {
     rate: rateVal || null,
     money: money
   };
-  if (!dayDetails[TODAY_KEY]) dayDetails[TODAY_KEY] = { date: dayHeading(TODAY_KEY), total: '', entries: [] };
-  dayDetails[TODAY_KEY].entries.push(entry);
-  recomputeDayTotal(TODAY_KEY);
-  buildCalendar();
-  if (currentDateKey === TODAY_KEY) renderDay(TODAY_KEY);
-  updateStats();
 
-  showToast('Запись сохранена');
-  resetToIdle();
+  playSaveAnimation(function () {
+    if (!dayDetails[TODAY_KEY]) dayDetails[TODAY_KEY] = { date: dayHeading(TODAY_KEY), total: '', entries: [] };
+    dayDetails[TODAY_KEY].entries.push(entry);
+    recomputeDayTotal(TODAY_KEY);
+    buildCalendar();
+    if (currentDateKey === TODAY_KEY) renderDay(TODAY_KEY);
+    updateStats();
+  });
 }
-function showToast(text) {
-  var el = document.getElementById('toast');
-  el.innerHTML = CHECK_SVG + '<span>' + escHtml(text) + '</span>';
-  el.style.display = 'flex';
-  clearTimeout(el._t);
-  el._t = setTimeout(function(){ el.style.display = 'none'; }, 2200);
+
+/* ---- save button motion: particle burst + clock→check morph ---- */
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var saveBurstCanvas = document.getElementById('saveBurst');
+var saveBurstCtx = saveBurstCanvas.getContext('2d');
+var saveBurstDpr = Math.min(window.devicePixelRatio || 1, 2);
+saveBurstCanvas.width = 240 * saveBurstDpr;
+saveBurstCanvas.height = 240 * saveBurstDpr;
+saveBurstCtx.scale(saveBurstDpr, saveBurstDpr);
+
+function saveBurstColor() {
+  return getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim() || '#0a0a0a';
+}
+function spawnSaveBurst() {
+  var color = saveBurstColor();
+  var particles = [];
+  var count = 22;
+  for (var i = 0; i < count; i++) {
+    var angle = (Math.PI * 2 * i) / count + (Math.random() - .5) * .4;
+    var speed = 1.4 + Math.random() * 2.2;
+    particles.push({ x: 120, y: 120, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - .6, r: 1.2 + Math.random() * 2, life: 1, decay: .02 + Math.random() * .018, color: color });
+  }
+  (function run() {
+    saveBurstCtx.clearRect(0, 0, 240, 240);
+    var alive = false;
+    particles.forEach(function (p) {
+      if (p.life <= 0) return;
+      alive = true;
+      p.x += p.vx; p.y += p.vy; p.vy += .06; p.vx *= .98; p.life -= p.decay;
+      saveBurstCtx.beginPath(); saveBurstCtx.globalAlpha = Math.max(p.life, 0); saveBurstCtx.fillStyle = p.color;
+      saveBurstCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2); saveBurstCtx.fill();
+    });
+    saveBurstCtx.globalAlpha = 1;
+    if (alive) requestAnimationFrame(run); else saveBurstCtx.clearRect(0, 0, 240, 240);
+  })();
+}
+
+var saveTimers = [];
+function clearSaveTimers() { saveTimers.forEach(clearTimeout); saveTimers = []; }
+function playSaveAnimation(onSaved) {
+  var btn = document.getElementById('saveBtn');
+  clearSaveTimers();
+  btn.classList.remove('is-saved', 'is-saving');
+  void btn.offsetWidth;
+  btn.classList.add('is-saving');
+  if (!reduceMotion) spawnSaveBurst();
+
+  saveTimers.push(setTimeout(function () {
+    btn.classList.remove('is-saving');
+    btn.classList.add('is-saved');
+    onSaved();
+  }, reduceMotion ? 40 : 480));
+
+  saveTimers.push(setTimeout(function () {
+    btn.classList.remove('is-saved');
+    withMorph(resetToIdle);
+  }, reduceMotion ? 500 : 1500));
+}
+
+/* ---- timer card morph: idle button ↔ running card via Web Animations API ---- */
+var morphBusy = false;
+var MORPH_EASE = 'cubic-bezier(.4,0,.2,1)';
+function currentVisibleView() {
+  var runningEl = document.getElementById('runningView');
+  return runningEl.style.display === 'none' ? document.getElementById('idleView') : runningEl;
+}
+function raceFinished(anim, fallbackMs) {
+  return Promise.race([
+    anim.finished.catch(function () {}),
+    new Promise(function (resolve) { setTimeout(resolve, fallbackMs); })
+  ]);
+}
+function supportsAnimate() {
+  return typeof Element !== 'undefined' && typeof Element.prototype.animate === 'function';
+}
+function withMorph(mutateFn) {
+  if (morphBusy) return;
+  if (reduceMotion || !supportsAnimate()) { mutateFn(); return; }
+  morphBusy = true;
+
+  var card = document.getElementById('timerCard');
+  var outgoing = currentVisibleView();
+  var startH = card.getBoundingClientRect().height;
+
+  var fadeOut = outgoing.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: 'ease', fill: 'forwards' });
+
+  raceFinished(fadeOut, 200).then(function () {
+    mutateFn();
+    var incoming = currentVisibleView();
+    var endH = card.getBoundingClientRect().height;
+
+    card.style.overflow = 'hidden';
+    incoming.style.opacity = '0';
+
+    var heightAnim = card.animate(
+      [{ height: startH + 'px' }, { height: endH + 'px' }],
+      { duration: 380, easing: MORPH_EASE, fill: 'forwards' }
+    );
+    var fadeIn = incoming.animate(
+      [{ opacity: 0 }, { opacity: 0 }, { opacity: 1 }],
+      { duration: 320, easing: 'ease', fill: 'forwards' }
+    );
+
+    heightAnim.finished.then(finish, finish);
+    setTimeout(finish, 700);
+
+    var done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      heightAnim.cancel();
+      fadeIn.cancel();
+      card.style.height = '';
+      card.style.overflow = '';
+      outgoing.style.opacity = '';
+      incoming.style.opacity = '';
+      morphBusy = false;
+    }
+  });
 }
 function togglePause() {
   paused = !paused;
@@ -755,7 +901,7 @@ function showDiscardConfirm() {
   document.getElementById('discardArea').innerHTML =
     '<div class="discard-confirm"><span>Сбросить текущую запись? <strong>' + fmt(seconds).replace(/^00:/,'') + '</strong> пропадёт без сохранения.</span>' +
     '<div class="discard-confirm-actions">' +
-      '<button class="btn btn-sm btn-destructive-ghost" onclick="resetToIdle()">Да, сбросить</button>' +
+      '<button class="btn btn-sm btn-destructive-ghost" onclick="withMorph(resetToIdle)">Да, сбросить</button>' +
       '<button class="btn btn-sm btn-outline" onclick="hideDiscardConfirm()">Отмена</button>' +
     '</div></div>';
 }
