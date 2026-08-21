@@ -282,6 +282,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .save-label-saving, .save-label-saved { opacity: 0; transform: translateY(6px); }
 #saveBtn.is-saving .save-label-idle { opacity: 0; transform: translateY(-6px); }
 #saveBtn.is-saving .save-label-saving { opacity: 1; transform: translateY(0); }
+#saveBtn.is-saved .save-label-idle { opacity: 0; transform: translateY(-6px); }
 #saveBtn.is-saved .save-label-saving { opacity: 0; transform: translateY(-6px); }
 #saveBtn.is-saved .save-label-saved { opacity: 1; transform: translateY(0); }
 
@@ -564,11 +565,11 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
     <div class="wordmark">Time Tracker</div>
     <div class="topbar-right">
       <div class="tabs">
-        <button class="tab" data-screen-tab="timer" data-active="true" onclick="showScreen('timer')">Таймер</button>
-        <button class="tab" data-screen-tab="history" onclick="showScreen('history')">История</button>
+        <button class="tab" data-screen-tab="timer" data-active="true" onclick="showScreen('timer')" data-i18n="tab.timer">Таймер</button>
+        <button class="tab" data-screen-tab="history" onclick="showScreen('history')" data-i18n="tab.history">История</button>
         <button class="tab" data-screen-tab="invoices" onclick="showScreen('invoices')" data-i18n="tab.invoices">Счета</button>
       </div>
-      <button class="btn btn-icon btn-outline" title="Настройки" onclick="openSettings()">
+      <button class="btn btn-icon btn-outline" title="Настройки" data-i18n-title="settings.title" onclick="openSettings()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
     </div>
@@ -581,44 +582,44 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
         <div id="idleView" class="idle-view">
           <button class="btn btn-primary btn-play-big" onclick="withMorph(startTimer)">
             <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-            Начать запись
+            <span data-i18n="timer.start">Начать запись</span>
           </button>
-          <div class="hotkey-hint">⌘/Ctrl+Enter — начать запись</div>
+          <div class="hotkey-hint" data-i18n="timer.hotkeyStart">⌘/Ctrl+Enter — начать запись</div>
         </div>
 
         <div id="runningView" style="display:none">
-          <div class="rec-row" id="recRow"><span class="rec-dot"></span>Идёт запись</div>
+          <div class="rec-row" id="recRow"><span class="rec-dot"></span><span data-i18n="timer.recording">Идёт запись</span></div>
           <div class="timer-display tnum" id="timerDisplay">00:00:00</div>
 
-          <input class="title-input" id="titleInput" type="text" value="" placeholder="Без названия">
+          <input class="title-input" id="titleInput" type="text" value="" placeholder="Без названия" data-i18n-ph="timer.titlePh">
 
           <div class="field-grid">
             <div>
-              <span class="field-label">Тег / проект</span>
+              <span class="field-label" data-i18n="timer.tagProject">Тег / проект</span>
               <div class="combo-wrap">
                 <button class="btn btn-outline combo-trigger" type="button" onclick="toggleProjectPopover(event)">
-                  <span id="projectTriggerLabel">Без тега</span>
+                  <span id="projectTriggerLabel" data-i18n="timer.noTag">Без тега</span>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
                 <div class="tag-popover" id="projectPopover" style="display:none">
-                  <input class="input" placeholder="Поиск или новый тег" oninput="renderProjectOptions(this.value)">
+                  <input class="input" placeholder="Поиск или новый тег" data-i18n-ph="timer.searchOrNewTag" oninput="renderProjectOptions(this.value)">
                   <div class="tag-options" id="projectOptions"></div>
                 </div>
               </div>
             </div>
             <div>
               <span class="field-label" id="rateLabel">Ставка, ₽</span>
-              <input class="input" id="rateInput" type="text" value="" placeholder="Без оплаты" inputmode="numeric">
+              <input class="input" id="rateInput" type="text" value="" placeholder="Без оплаты" data-i18n-ph="timer.noPay" inputmode="numeric">
             </div>
           </div>
 
           <div class="controls-row" id="controlsRow">
-            <button class="btn btn-icon btn-destructive-ghost" title="Сбросить без сохранения" onclick="showDiscardConfirm()">
+            <button class="btn btn-icon btn-destructive-ghost" title="Сбросить без сохранения" data-i18n-title="timer.discardTitle" onclick="showDiscardConfirm()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
             </button>
             <button class="btn btn-outline" id="pauseBtn" onclick="togglePause()">
               <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-              Пауза
+              <span id="pauseBtnLabel" data-i18n="timer.pause">Пауза</span>
             </button>
             <div class="spacer"></div>
             <div class="save-btn-wrap">
@@ -634,16 +635,16 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
                   <svg class="save-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
                 </span>
                 <span class="save-label">
-                  <span class="save-label-idle">Сохранить</span>
-                  <span class="save-label-saving">Сохранение…</span>
-                  <span class="save-label-saved">Сохранено</span>
+                  <span class="save-label-idle" data-i18n="timer.saveIdle">Сохранить</span>
+                  <span class="save-label-saving" data-i18n="timer.saveSaving">Сохранение…</span>
+                  <span class="save-label-saved" data-i18n="timer.saveSaved">Сохранено</span>
                 </span>
               </button>
             </div>
           </div>
 
           <div id="discardArea"></div>
-          <div class="hotkey-hint">⌘/Ctrl+Enter — сохранить · Space — пауза</div>
+          <div class="hotkey-hint" data-i18n="timer.hotkeyRunning">⌘/Ctrl+Enter — сохранить · Space — пауза</div>
         </div>
       </div>
     </div>
@@ -663,15 +664,15 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
       </div>
       <div class="search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input class="input" id="searchInput" placeholder="Поиск по названию" oninput="handleSearch(this.value)">
+        <input class="input" id="searchInput" placeholder="Поиск по названию" data-i18n-ph="history.searchPh" oninput="handleSearch(this.value)">
       </div>
       <div class="combo-wrap">
         <button class="btn btn-outline combo-trigger tag-trigger" onclick="toggleTagPopover(event)">
-          Теги<span id="tagCount"></span>
+          <span data-i18n="history.tags">Теги</span><span id="tagCount"></span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="tag-popover" id="tagPopover" style="display:none">
-          <input class="input" placeholder="Поиск или новый тег" oninput="renderTagOptions(this.value)">
+          <input class="input" placeholder="Поиск или новый тег" data-i18n-ph="timer.searchOrNewTag" oninput="renderTagOptions(this.value)">
           <div class="tag-options" id="tagOptions"></div>
         </div>
       </div>
@@ -679,15 +680,15 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
 
     <div class="history-body" id="historyGrid">
       <div class="card stat-tile">
-        <div class="stat-label">Всего часов</div>
+        <div class="stat-label" data-i18n="history.totalHours">Всего часов</div>
         <div class="stat-value tnum" id="statHours">0ч</div>
       </div>
       <div class="card stat-tile">
-        <div class="stat-label">Заработано</div>
+        <div class="stat-label" data-i18n="history.earned">Заработано</div>
         <div class="stat-value tnum accent" id="statMoney">0 ₽</div>
       </div>
       <div class="card stat-tile">
-        <div class="stat-label">Задач</div>
+        <div class="stat-label" data-i18n="history.tasks">Задач</div>
         <div class="stat-value tnum" id="statCount">0</div>
       </div>
 
@@ -710,7 +711,7 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
           <span id="ddDate">19 августа</span>
           <span class="day-panel-actions">
             <span class="day-summary tnum" id="ddTotal">4.4ч · 6 333 ₽</span>
-            <button class="btn btn-secondary btn-sm" onclick="startAddEntry()">+ Добавить</button>
+            <button class="btn btn-secondary btn-sm" data-i18n="history.addEntry" onclick="startAddEntry()">+ Добавить</button>
           </span>
         </div>
         <div class="entry-list" id="ddList"></div>
@@ -786,7 +787,6 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
     </div>
     <div class="settings-block">
       <div class="settings-block-title" data-i18n="settings.lang.title">Язык</div>
-      <p class="settings-block-hint" data-i18n="settings.lang.hint">Пока переведены Счета, Настройки и PDF-документ. Таймер и Историю переведём следующим шагом.</p>
       <div class="currency-pick" id="langPick">
         <button type="button" data-lang="ru" onclick="selectSettingsLang('ru')">RU</button>
         <button type="button" data-lang="en" onclick="selectSettingsLang('en')">EN</button>
@@ -850,7 +850,7 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
       <input type="file" accept="image/*" id="sigFileInput" onchange="onSigFileChosen(event)">
     </div>
     <div class="sig-preview-row" id="sigPreviewRow" style="display:none;">
-      <img id="sigPreviewImg" alt="подпись">
+      <img id="sigPreviewImg" alt="подпись" data-i18n-alt="modal.sig">
       <button class="btn btn-outline btn-sm" type="button" onclick="deleteSignature()" data-i18n="modal.sig.delete">Удалить подпись</button>
     </div>
 
@@ -1303,7 +1303,7 @@ function updateRateForTag(tag) {
 var currentEntryDefaultTitle = '';
 function defaultEntryTitle() {
   var d = new Date();
-  return 'Без названия — ' + pad2(d.getDate()) + '.' + pad2(d.getMonth() + 1) + ', ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  return tr('timer.titlePh') + ' — ' + pad2(d.getDate()) + '.' + pad2(d.getMonth() + 1) + ', ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
 }
 function startTimer() {
   timerState = 'running';
@@ -1318,7 +1318,7 @@ function startTimer() {
   document.getElementById('titleInput').value = '';
   document.getElementById('recRow').style.opacity = '1';
   currentProjectTag = null;
-  document.getElementById('projectTriggerLabel').textContent = currentProjectTag || 'Без тега';
+  document.getElementById('projectTriggerLabel').textContent = currentProjectTag || tr('timer.noTag');
   updateRateForTag(currentProjectTag);
 }
 function resetToIdle() {
@@ -1331,7 +1331,7 @@ function resetToIdle() {
   document.getElementById('discardArea').innerHTML = '';
   document.getElementById('controlsRow').style.display = 'flex';
   document.getElementById('pauseBtn').innerHTML =
-    '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>Пауза';
+    '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg><span id="pauseBtnLabel">' + escHtml(tr('timer.pause')) + '</span>';
 }
 function saveEntry() {
   var titleInput = document.getElementById('titleInput');
@@ -1490,17 +1490,17 @@ function togglePause() {
   paused = !paused;
   var btn = document.getElementById('pauseBtn');
   btn.innerHTML = paused
-    ? '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>Продолжить'
-    : '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>Пауза';
+    ? '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg><span id="pauseBtnLabel">' + escHtml(tr('timer.resume')) + '</span>'
+    : '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg><span id="pauseBtnLabel">' + escHtml(tr('timer.pause')) + '</span>';
   document.getElementById('recRow').style.opacity = paused ? '.5' : '1';
 }
 function showDiscardConfirm() {
   document.getElementById('controlsRow').style.display = 'none';
   document.getElementById('discardArea').innerHTML =
-    '<div class="discard-confirm"><span>Сбросить текущую запись? <strong>' + fmt(seconds).replace(/^00:/,'') + '</strong> пропадёт без сохранения.</span>' +
+    '<div class="discard-confirm"><span>' + escHtml(tr('discard.text1')) + '<strong>' + fmt(seconds).replace(/^00:/,'') + '</strong>' + escHtml(tr('discard.text2')) + '</span>' +
     '<div class="discard-confirm-actions">' +
-      '<button class="btn btn-sm btn-destructive-ghost" onclick="withMorph(resetToIdle)">Да, сбросить</button>' +
-      '<button class="btn btn-sm btn-outline" onclick="hideDiscardConfirm()">Отмена</button>' +
+      '<button class="btn btn-sm btn-destructive-ghost" onclick="withMorph(resetToIdle)">' + escHtml(tr('discard.yes')) + '</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="hideDiscardConfirm()">' + escHtml(tr('common.cancel')) + '</button>' +
     '</div></div>';
 }
 function hideDiscardConfirm() {
@@ -1520,9 +1520,27 @@ var CHEVRON_RIGHT_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 var CHEVRON_DOWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
 
 /* ---- date utilities (shared by sidebar calendar, entry date-field, period picker) ---- */
-var MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-var MONTH_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-var MONTH_SHORT_GEN = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+var MONTH_NAMES_RU = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+var MONTH_GEN_RU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+var MONTH_SHORT_GEN_RU = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+var WEEKDAYS_RU = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+var MONTH_NAMES_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var MONTH_SHORT_GEN_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var WEEKDAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var MONTH_NAMES = MONTH_NAMES_RU.slice();
+var MONTH_GEN = MONTH_GEN_RU.slice();
+var MONTH_SHORT_GEN = MONTH_SHORT_GEN_RU.slice();
+var WEEKDAYS = WEEKDAYS_RU.slice();
+function weekdayHeaderHtml() { return WEEKDAYS.map(function (w) { return '<span>' + w + '</span>'; }).join(''); }
+function applyLocaleArrays() {
+  var en = (localStorage.getItem('tt_lang') || 'ru') === 'en';
+  function fill(arr, src) { arr.length = 0; Array.prototype.push.apply(arr, src); }
+  fill(MONTH_NAMES, en ? MONTH_NAMES_EN : MONTH_NAMES_RU);
+  fill(MONTH_GEN, en ? MONTH_NAMES_EN : MONTH_GEN_RU);
+  fill(MONTH_SHORT_GEN, en ? MONTH_SHORT_GEN_EN : MONTH_SHORT_GEN_RU);
+  fill(WEEKDAYS, en ? WEEKDAYS_EN : WEEKDAYS_RU);
+  document.querySelectorAll('.cal-weekdays').forEach(function (el) { el.innerHTML = weekdayHeaderHtml(); });
+}
 function pad2(n) { return (n < 10 ? '0' : '') + n; }
 function isoDate(y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); }
 var _now = new Date();
@@ -1557,15 +1575,15 @@ function formatDateInput(y, m, d) { return pad2(d) + '.' + pad2(m + 1) + '.' + y
 function dateFieldHtml(idBase, y, m, d) {
   datePickerYear[idBase] = y; datePickerMonth[idBase] = m; datePickerDay[idBase] = d;
   return '<div class="combo-wrap date-field entry-edit-date">' +
-    '<input type="text" class="input" id="et-date-' + idBase + '" value="' + formatDateInput(y, m, d) + '" placeholder="ДД.ММ.ГГГГ" inputmode="numeric" oninput="parseTypedDate(\'' + idBase + '\', this.value)">' +
-    '<button type="button" class="date-cal-btn" onclick="toggleDatePopover(\'' + idBase + '\', event)" title="Открыть календарь">' + CAL_ICON_SVG + '</button>' +
+    '<input type="text" class="input" id="et-date-' + idBase + '" value="' + formatDateInput(y, m, d) + '" placeholder="' + escHtml(tr('entry.datePh')) + '" inputmode="numeric" oninput="parseTypedDate(\'' + idBase + '\', this.value)">' +
+    '<button type="button" class="date-cal-btn" onclick="toggleDatePopover(\'' + idBase + '\', event)" title="' + escHtml(tr('entry.openCalTitle')) + '">' + CAL_ICON_SVG + '</button>' +
     '<div class="tag-popover" id="datePop-' + idBase + '" style="display:none">' +
       '<div class="cal-nav" style="margin-bottom:6px">' +
         '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="navDatePicker(\'' + idBase + '\',-1)">' + CHEVRON_LEFT_SVG + '</button>' +
         '<div class="month-label" id="dateMonthLabel-' + idBase + '">' + MONTH_NAMES[m] + ' ' + y + '</div>' +
         '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="navDatePicker(\'' + idBase + '\',1)">' + CHEVRON_RIGHT_SVG + '</button>' +
       '</div>' +
-      '<div class="cal-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>' +
+      '<div class="cal-weekdays">' + weekdayHeaderHtml() + '</div>' +
       '<div class="cal-days" id="dateDays-' + idBase + '"></div>' +
     '</div>' +
   '</div>';
@@ -1629,10 +1647,10 @@ function jsEsc(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); 
 /* ---- delete a tag: shared across timer field, history filter, entry-edit field ---- */
 var tagDeleteConfirm = null;
 function tagOptionConfirmHtml(t) {
-  return '<div class="discard-confirm"><span>Удалить тег «' + escHtml(t) + '»?</span>' +
+  return '<div class="discard-confirm"><span>' + tr('tag.deleteConfirm1') + escHtml(t) + tr('tag.deleteConfirm2') + '</span>' +
     '<div class="discard-confirm-actions">' +
-      '<button class="btn btn-sm btn-destructive-ghost" onclick="confirmDeleteTag(\'' + jsEsc(t) + '\', event)">Да, удалить</button>' +
-      '<button class="btn btn-sm btn-outline" onclick="cancelDeleteTag(event)">Отмена</button>' +
+      '<button class="btn btn-sm btn-destructive-ghost" onclick="confirmDeleteTag(\'' + jsEsc(t) + '\', event)">' + tr('common.yesDelete') + '</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="cancelDeleteTag(event)">' + tr('common.cancel') + '</button>' +
     '</div></div>';
 }
 function askDeleteTag(name, e) {
@@ -1653,13 +1671,13 @@ function confirmDeleteTag(name, e) {
   if (typeof currentProjectTag !== 'undefined' && currentProjectTag === name) {
     currentProjectTag = allTags.length ? allTags[0] : null;
     var trigLbl = document.getElementById('projectTriggerLabel');
-    if (trigLbl) trigLbl.textContent = currentProjectTag || 'Без тега';
+    if (trigLbl) trigLbl.textContent = currentProjectTag || tr('timer.noTag');
   }
   Object.keys(entryTagValue).forEach(function(idBase){
     if (entryTagValue[idBase] === name) {
       entryTagValue[idBase] = 'Без тега';
       var entryLbl = document.getElementById('entryTagLabel-' + idBase);
-      if (entryLbl) entryLbl.textContent = 'Без тега';
+      if (entryLbl) entryLbl.textContent = tr('timer.noTag');
     }
   });
   tagDeleteConfirm = null;
@@ -1693,12 +1711,13 @@ var entryTagValue = {};
 function tagFieldHtml(idBase, tagValue) {
   var val = tagValue || 'Без тега';
   entryTagValue[idBase] = val;
+  var displayVal = tagValue ? escHtml(tagValue) : tr('timer.noTag');
   return '<div class="combo-wrap entry-edit-tag">' +
     '<button type="button" class="btn btn-outline combo-trigger" onclick="toggleEntryTagPopover(\'' + idBase + '\', event)">' +
-      '<span id="entryTagLabel-' + idBase + '">' + escHtml(val) + '</span>' + CHEVRON_DOWN_SVG +
+      '<span id="entryTagLabel-' + idBase + '">' + displayVal + '</span>' + CHEVRON_DOWN_SVG +
     '</button>' +
     '<div class="tag-popover" id="entryTagPop-' + idBase + '" style="display:none">' +
-      '<input class="input" placeholder="Поиск или новый тег" oninput="renderEntryTagOptions(\'' + idBase + '\', this.value)">' +
+      '<input class="input" placeholder="' + escHtml(tr('timer.searchOrNewTag')) + '" oninput="renderEntryTagOptions(\'' + idBase + '\', this.value)">' +
       '<div class="tag-options" id="entryTagOptions-' + idBase + '"></div>' +
     '</div>' +
   '</div>';
@@ -1717,7 +1736,7 @@ function renderEntryTagOptions(idBase, filterStr) {
   var q = filterStr.toLowerCase();
   var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
   var noneRow = !filterStr ? ('<div class="tag-option"><span class="tag-option-label" onclick="selectEntryTag(\'' + idBase + '\',\'Без тега\')">' +
-    '<span class="tag-check-slot">' + ((entryTagValue[idBase] || 'Без тега') === 'Без тега' ? CHECK_SVG : '') + '</span>Без тега</span></div>') : '';
+    '<span class="tag-check-slot">' + ((entryTagValue[idBase] || 'Без тега') === 'Без тега' ? CHECK_SVG : '') + '</span>' + escHtml(tr('timer.noTag')) + '</span></div>') : '';
   var rows = list.map(function(t){
     if (t === tagDeleteConfirm) return tagOptionConfirmHtml(t);
     var active = t === entryTagValue[idBase];
@@ -1725,20 +1744,20 @@ function renderEntryTagOptions(idBase, filterStr) {
       '<span class="tag-option-label" onclick="selectEntryTag(\'' + idBase + '\',\'' + jsEsc(t) + '\')">' +
         '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t) +
       '</span>' +
-      '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="Удалить тег">' + TRASH_SVG + '</button>' +
+      '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="' + escHtml(tr('tag.deleteTitle')) + '">' + TRASH_SVG + '</button>' +
     '</div>';
   }).join('');
   var html = noneRow + rows;
   if (filterStr && !tagExists(filterStr)) {
-    html += '<div class="tag-option tag-option-add" onclick="createAndSelectEntryTag(\'' + idBase + '\',\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + 'Добавить «' + escHtml(filterStr) + '»</div>';
+    html += '<div class="tag-option tag-option-add" onclick="createAndSelectEntryTag(\'' + idBase + '\',\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + tr('tag.addPrefix') + escHtml(filterStr) + tr('tag.addSuffix') + '</div>';
   } else if (!rows && !noneRow) {
-    html = '<div class="tag-empty">Тегов пока нет</div>';
+    html = '<div class="tag-empty">' + escHtml(tr('timer.noTagsYet')) + '</div>';
   }
   document.getElementById('entryTagOptions-' + idBase).innerHTML = html;
 }
 function selectEntryTag(idBase, t) {
   entryTagValue[idBase] = t;
-  document.getElementById('entryTagLabel-' + idBase).textContent = t;
+  document.getElementById('entryTagLabel-' + idBase).textContent = (t === 'Без тега') ? tr('timer.noTag') : t;
   document.getElementById('entryTagPop-' + idBase).style.display = 'none';
 }
 function createAndSelectEntryTag(idBase, name) {
@@ -1756,7 +1775,7 @@ function displayRowHtml(e, startFn, i) {
     '<div class="entry-meta"><span class="badge badge-tag">' + escHtml(e.tag) + '</span></div></div>' +
     '<div class="entry-time tnum">' + e.time + '</div>' +
     '<div class="entry-money tnum' + (e.money ? '' : ' muted') + '">' + (e.money || '—') + '</div>' +
-    (startFn ? '<button class="row-edit-btn" onclick="' + startFn + '(' + i + ')" title="Редактировать">' + PENCIL_SVG + '</button>' : '') +
+    (startFn ? '<button class="row-edit-btn" onclick="' + startFn + '(' + i + ')" title="' + escHtml(tr('entry.editTitle')) + '">' + PENCIL_SVG + '</button>' : '') +
     '</div>';
 }
 function editFieldsHtml(idBase, e, tagValue) {
@@ -1768,22 +1787,22 @@ function editFieldsHtml(idBase, e, tagValue) {
   var dY = parseInt(dp[0], 10), dM = parseInt(dp[1], 10) - 1, dD = parseInt(dp[2], 10);
   return dateFieldHtml(idBase, dY, dM, dD) +
     '<div class="entry-edit-time-range">' +
-      '<input type="text" class="input entry-edit-time tnum" id="et-start-' + idBase + '" value="' + start + '" placeholder="ЧЧ:ММ" inputmode="numeric">' +
+      '<input type="text" class="input entry-edit-time tnum" id="et-start-' + idBase + '" value="' + start + '" placeholder="' + escHtml(tr('entry.timePh')) + '" inputmode="numeric">' +
       '<span class="entry-edit-time-sep">–</span>' +
-      '<input type="text" class="input entry-edit-time tnum" id="et-end-' + idBase + '" value="' + end + '" placeholder="ЧЧ:ММ" inputmode="numeric">' +
+      '<input type="text" class="input entry-edit-time tnum" id="et-end-' + idBase + '" value="' + end + '" placeholder="' + escHtml(tr('entry.timePh')) + '" inputmode="numeric">' +
     '</div>' +
     tagFieldHtml(idBase, tagValue) +
-    '<input class="input entry-edit-rate tnum" id="et-rate-' + idBase + '" value="' + (e.rate || '') + '" placeholder="Без оплаты" inputmode="numeric">';
+    '<input class="input entry-edit-rate tnum" id="et-rate-' + idBase + '" value="' + (e.rate || '') + '" placeholder="' + escHtml(tr('timer.noPay')) + '" inputmode="numeric">';
 }
 function editRowHtml(e, i, idPrefix, saveFn, cancelFn, delFn, askDeleteFn, cancelConfirmFn, confirming) {
   var idBase = idPrefix + i;
   if (confirming) {
     return '<div class="entry-edit-card">' +
       '<div class="discard-confirm">' +
-        '<span>Удалить «' + escHtml(e.title) + '»? Это действие нельзя отменить.</span>' +
+        '<span>' + escHtml(tr('entry.deleteConfirm1')) + escHtml(e.title) + escHtml(tr('entry.deleteConfirm2')) + '</span>' +
         '<div class="discard-confirm-actions">' +
-          '<button class="btn btn-sm btn-destructive-ghost" onclick="' + delFn + '(' + i + ')">Да, удалить</button>' +
-          '<button class="btn btn-sm btn-outline" onclick="' + cancelConfirmFn + '()">Отмена</button>' +
+          '<button class="btn btn-sm btn-destructive-ghost" onclick="' + delFn + '(' + i + ')">' + escHtml(tr('common.yesDelete')) + '</button>' +
+          '<button class="btn btn-sm btn-outline" onclick="' + cancelConfirmFn + '()">' + escHtml(tr('common.cancel')) + '</button>' +
         '</div>' +
       '</div>' +
     '</div>';
@@ -1793,9 +1812,9 @@ function editRowHtml(e, i, idPrefix, saveFn, cancelFn, delFn, askDeleteFn, cance
     '<div class="entry-edit-fields">' +
       editFieldsHtml(idBase, e, e.tag) +
       '<div class="entry-edit-actions">' +
-        '<button class="row-edit-btn" onclick="' + saveFn + '(' + i + ')" title="Сохранить">' + CHECK_SVG + '</button>' +
-        '<button class="row-edit-btn" onclick="' + cancelFn + '()" title="Отмена">' + CLOSE_SVG + '</button>' +
-        '<button class="row-edit-btn row-edit-delete" onclick="' + askDeleteFn + '()" title="Удалить">' + TRASH_SVG + '</button>' +
+        '<button class="row-edit-btn" onclick="' + saveFn + '(' + i + ')" title="' + escHtml(tr('entry.saveTitle')) + '">' + CHECK_SVG + '</button>' +
+        '<button class="row-edit-btn" onclick="' + cancelFn + '()" title="' + escHtml(tr('entry.cancelTitle')) + '">' + CLOSE_SVG + '</button>' +
+        '<button class="row-edit-btn row-edit-delete" onclick="' + askDeleteFn + '()" title="' + escHtml(tr('entry.deleteTitle')) + '">' + TRASH_SVG + '</button>' +
       '</div>' +
     '</div>' +
   '</div>';
@@ -1803,12 +1822,12 @@ function editRowHtml(e, i, idPrefix, saveFn, cancelFn, delFn, askDeleteFn, cance
 function newEntryRowHtml() {
   var blank = { time: '10:00–11:00' };
   return '<div class="entry-edit-card">' +
-    '<input class="entry-edit-title-line" id="et-title-new" placeholder="Название задачи">' +
+    '<input class="entry-edit-title-line" id="et-title-new" placeholder="' + escHtml(tr('entry.titlePh')) + '">' +
     '<div class="entry-edit-fields">' +
       editFieldsHtml('new', blank, null) +
       '<div class="entry-edit-actions">' +
-        '<button class="row-edit-btn" onclick="saveNewEntry()" title="Сохранить">' + CHECK_SVG + '</button>' +
-        '<button class="row-edit-btn" onclick="cancelAddEntry()" title="Отмена">' + CLOSE_SVG + '</button>' +
+        '<button class="row-edit-btn" onclick="saveNewEntry()" title="' + escHtml(tr('entry.saveTitle')) + '">' + CHECK_SVG + '</button>' +
+        '<button class="row-edit-btn" onclick="cancelAddEntry()" title="' + escHtml(tr('entry.cancelTitle')) + '">' + CLOSE_SVG + '</button>' +
       '</div>' +
     '</div>' +
   '</div>';
@@ -1827,7 +1846,7 @@ function setCurrency(code) { localStorage.setItem('tt_currency', code); }
 function curSymbol(code) { return CUR_SYMBOL[code] || code || CUR_SYMBOL[getCurrency()]; }
 function refreshRateLabel() {
   var el = document.getElementById('rateLabel');
-  if (el) el.textContent = 'Ставка, ' + curSymbol(getCurrency());
+  if (el) el.textContent = tr('timer.rate') + ', ' + curSymbol(getCurrency());
 }
 function formatMoney(n, symbol) { return n ? n.toLocaleString('ru-RU') + ' ' + (symbol || curSymbol(getCurrency())) : null; }
 function formatMoneyByCur(moneyByCur) {
@@ -1850,7 +1869,7 @@ function recomputeDayTotal(dateKey) {
   });
   totalH = Math.round(totalH * 10) / 10;
   var hasMoney = Object.keys(moneyByCur).some(function(c){ return moneyByCur[c]; });
-  d.total = hasMoney ? totalH + 'ч · ' + formatMoneyByCur(moneyByCur) : totalH + 'ч';
+  d.total = hasMoney ? totalH + tr('unit.h') + ' · ' + formatMoneyByCur(moneyByCur) : totalH + tr('unit.h');
   calData[dateKey] = totalH;
   saveState();
 }
@@ -1904,7 +1923,7 @@ function renderDdList() {
         : displayRowHtml(e, 'startDdEdit', i);
     }).join('');
   }
-  document.getElementById('ddList').innerHTML = html || emptyStateHtml('Нет записей за этот день');
+  document.getElementById('ddList').innerHTML = html || emptyStateHtml(escHtml(tr('history.emptyDay')));
 }
 function startDdEdit(i) { ddEditingIndex = i; ddDeleteConfirming = false; renderDdList(); }
 function cancelDdEdit() { ddEditingIndex = -1; ddDeleteConfirming = false; renderDdList(); }
@@ -1913,7 +1932,7 @@ function cancelDeleteConfirmDd() { ddDeleteConfirming = false; renderDdList(); }
 function startAddEntry() { addingEntry = true; renderDdList(); }
 function cancelAddEntry() { addingEntry = false; renderDdList(); }
 function saveNewEntry() {
-  var title = document.getElementById('et-title-new').value.trim() || 'Без названия';
+  var title = document.getElementById('et-title-new').value.trim() || tr('timer.titlePh');
   var tag = entryTagValue['new'] || 'Без тега';
   var start = document.getElementById('et-start-new').value || '10:00';
   var end = document.getElementById('et-end-new').value || '11:00';
@@ -1975,7 +1994,7 @@ function buildCalendar() {
     var isSelected = !c.muted && c.key === currentDateKey;
     return '<button class="cal-day" data-muted="'+c.muted+'" data-today="'+isToday+'" data-selected="'+isSelected+'"' +
       (!c.muted ? ' onclick="selectDay(\''+c.key+'\', this)"' : '') + '>' +
-      '<span class="num">'+c.num+'</span>' + (hrs ? '<span class="hrs tnum">'+hrs+'ч</span>' : '') +
+      '<span class="num">'+c.num+'</span>' + (hrs ? '<span class="hrs tnum">'+hrs+tr('unit.h')+'</span>' : '') +
       '</button>';
   }).join('');
 }
@@ -2019,14 +2038,14 @@ function renderTagOptions(filterStr) {
     return '<div class="tag-option">' +
       '<label class="tag-option-label" for="' + id + '"><input type="checkbox" id="' + id + '" ' +
         (selectedTags[t] ? 'checked' : '') + ' onchange="toggleTag(\'' + jsEsc(t) + '\')"><span>' + escHtml(t) + '</span></label>' +
-      '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="Удалить тег">' + TRASH_SVG + '</button>' +
+      '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="' + escHtml(tr('tag.deleteTitle')) + '">' + TRASH_SVG + '</button>' +
     '</div>';
   }).join('');
   var html = rows;
   if (filterStr && !tagExists(filterStr)) {
-    html += '<div class="tag-option tag-option-add" onclick="createAndSelectTag(\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + 'Добавить «' + escHtml(filterStr) + '»</div>';
+    html += '<div class="tag-option tag-option-add" onclick="createAndSelectTag(\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + tr('tag.addPrefix') + escHtml(filterStr) + tr('tag.addSuffix') + '</div>';
   } else if (!rows) {
-    html = '<div class="tag-empty">Тегов пока нет</div>';
+    html = '<div class="tag-empty">' + escHtml(tr('timer.noTagsYet')) + '</div>';
   }
   document.getElementById('tagOptions').innerHTML = html;
 }
@@ -2065,7 +2084,7 @@ function renderProjectOptions(filterStr) {
   var q = filterStr.toLowerCase();
   var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
   var noneRow = !filterStr ? ('<div class="tag-option"><span class="tag-option-label" onclick="selectProject(null)">' +
-    '<span class="tag-check-slot">' + (!currentProjectTag ? CHECK_SVG : '') + '</span>Без тега</span></div>') : '';
+    '<span class="tag-check-slot">' + (!currentProjectTag ? CHECK_SVG : '') + '</span>' + escHtml(tr('timer.noTag')) + '</span></div>') : '';
   var rows = list.map(function(t){
     if (t === tagDeleteConfirm) return tagOptionConfirmHtml(t);
     var active = t === currentProjectTag;
@@ -2073,20 +2092,20 @@ function renderProjectOptions(filterStr) {
       '<span class="tag-option-label" onclick="selectProject(\'' + jsEsc(t) + '\')">' +
         '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t) +
       '</span>' +
-      '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="Удалить тег">' + TRASH_SVG + '</button>' +
+      '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="' + escHtml(tr('tag.deleteTitle')) + '">' + TRASH_SVG + '</button>' +
     '</div>';
   }).join('');
   var html = noneRow + rows;
   if (filterStr && !tagExists(filterStr)) {
-    html += '<div class="tag-option tag-option-add" onclick="createAndSelectProject(\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + 'Добавить «' + escHtml(filterStr) + '»</div>';
+    html += '<div class="tag-option tag-option-add" onclick="createAndSelectProject(\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + tr('tag.addPrefix') + escHtml(filterStr) + tr('tag.addSuffix') + '</div>';
   } else if (!rows && !noneRow) {
-    html = '<div class="tag-empty">Тегов пока нет</div>';
+    html = '<div class="tag-empty">' + escHtml(tr('timer.noTagsYet')) + '</div>';
   }
   document.getElementById('projectOptions').innerHTML = html;
 }
 function selectProject(t) {
   currentProjectTag = t;
-  document.getElementById('projectTriggerLabel').textContent = t || 'Без тега';
+  document.getElementById('projectTriggerLabel').textContent = t || tr('timer.noTag');
   document.getElementById('projectPopover').style.display = 'none';
   updateRateForTag(t);
 }
@@ -2115,11 +2134,11 @@ var LAST_MONTH_START_KEY = isoDate(LAST_MONTH_YEAR, LAST_MONTH_IDX, 1);
 var LAST_MONTH_END_KEY = isoDate(LAST_MONTH_YEAR, LAST_MONTH_IDX, daysInMonth(LAST_MONTH_YEAR, LAST_MONTH_IDX));
 var LAST30_START_KEY = addDaysKey(TODAY_KEY, -29);
 var periodPresets = [
-  { label: 'Сегодня', start: TODAY_KEY, end: TODAY_KEY },
-  { label: 'Эта неделя', start: WEEK_START_KEY, end: WEEK_END_KEY },
-  { label: 'Этот месяц', start: MONTH_START_KEY, end: MONTH_END_KEY },
-  { label: 'Прошлый месяц', start: LAST_MONTH_START_KEY, end: LAST_MONTH_END_KEY },
-  { label: 'Последние 30 дней', start: LAST30_START_KEY, end: TODAY_KEY }
+  { key: 'today', start: TODAY_KEY, end: TODAY_KEY },
+  { key: 'week', start: WEEK_START_KEY, end: WEEK_END_KEY },
+  { key: 'month', start: MONTH_START_KEY, end: MONTH_END_KEY },
+  { key: 'lastMonth', start: LAST_MONTH_START_KEY, end: LAST_MONTH_END_KEY },
+  { key: 'last30', start: LAST30_START_KEY, end: TODAY_KEY }
 ];
 function presetRangeLabel(p) {
   return p.start === p.end ? formatShortDate(p.start) : formatShortDate(p.start) + ' – ' + formatShortDate(p.end);
@@ -2154,7 +2173,7 @@ function computeStatsForRange(startKey, endKey, tagFilter) {
 }
 function updateStats() {
   var stats = computeStatsForRange(currentPeriodStart, currentPeriodEnd);
-  document.getElementById('statHours').textContent = stats.hours + 'ч';
+  document.getElementById('statHours').textContent = stats.hours + tr('unit.h');
   document.getElementById('statMoney').textContent = formatMoneyByCur(stats.moneyByCur);
   document.getElementById('statCount').textContent = stats.count;
 }
@@ -2175,15 +2194,15 @@ function renderPeriodOptions() {
   if (periodMode === 'custom') {
     box.className = 'period-custom-box';
     box.innerHTML =
-      '<button type="button" class="btn btn-ghost btn-sm period-back" onclick="backToPresets()">' + CHEVRON_LEFT_SVG + 'Пресеты</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm period-back" onclick="backToPresets()">' + CHEVRON_LEFT_SVG + tr('period.presetsBack') + '</button>' +
       '<div class="cal-nav" style="margin:6px 0">' +
         '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="navPeriodCalMonth(-1)">' + CHEVRON_LEFT_SVG + '</button>' +
         '<div class="month-label" id="periodMonthLabel">' + MONTH_NAMES[periodCalMonth] + ' ' + periodCalYear + '</div>' +
         '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="navPeriodCalMonth(1)">' + CHEVRON_RIGHT_SVG + '</button>' +
       '</div>' +
-      '<div class="cal-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>' +
+      '<div class="cal-weekdays">' + weekdayHeaderHtml() + '</div>' +
       '<div class="cal-days" id="periodCalDays"></div>' +
-      '<button type="button" class="btn btn-primary btn-sm period-apply" id="periodApplyBtn" onclick="applyCustomRange()">Применить</button>';
+      '<button type="button" class="btn btn-primary btn-sm period-apply" id="periodApplyBtn" onclick="applyCustomRange()">' + tr('period.apply') + '</button>';
     buildCustomRangeCalendar();
     return;
   }
@@ -2191,10 +2210,10 @@ function renderPeriodOptions() {
   var rows = periodPresets.map(function(p, idx){
     var active = p.start === currentPeriodStart && p.end === currentPeriodEnd;
     return '<div class="tag-option" onclick="selectPreset(' + idx + ')">' +
-      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(p.label) + '</div>';
+      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t('period.' + p.key)) + '</div>';
   }).join('');
   rows += '<div class="tag-option" onclick="openCustomRange()">' +
-    '<span class="tag-check-slot">' + (isCustomActive() ? CHECK_SVG : '') + '</span>Свой период →</div>';
+    '<span class="tag-check-slot">' + (isCustomActive() ? CHECK_SVG : '') + '</span>' + tr('period.custom') + '</div>';
   box.innerHTML = rows;
 }
 function selectPreset(idx) {
@@ -2304,7 +2323,7 @@ function renderSearchResults(query) {
     if (matches.length) groups.push({ key: key, entries: matches });
   });
   if (!groups.length) {
-    el.innerHTML = '<div class="search-empty">Ничего не найдено по «' + escHtml(query) + '»</div>';
+    el.innerHTML = '<div class="search-empty">' + escHtml(tr('history.noResults1')) + escHtml(query) + escHtml(tr('history.noResults2')) + '</div>';
     return;
   }
   el.innerHTML = groups.map(function(g){
@@ -2325,7 +2344,7 @@ function invToggleProjectPopover(e) {
 }
 function invRenderProjectOptions() {
   var box = document.getElementById('invProjectOptions');
-  if (!allTags.length) { box.innerHTML = '<div class="tag-empty">Тегов пока нет</div>'; return; }
+  if (!allTags.length) { box.innerHTML = '<div class="tag-empty">' + escHtml(tr('timer.noTagsYet')) + '</div>'; return; }
   box.innerHTML = allTags.map(function(t){
     var active = t === invoiceProjectTag;
     return '<div class="tag-option" onclick="invSelectProject(\'' + jsEsc(t) + '\')">' +
@@ -2363,15 +2382,15 @@ function invRenderPeriodOptions() {
   if (invPeriodMode === 'custom') {
     box.className = 'period-custom-box';
     box.innerHTML =
-      '<button type="button" class="btn btn-ghost btn-sm period-back" onclick="invBackToPresets()">' + CHEVRON_LEFT_SVG + 'Пресеты</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm period-back" onclick="invBackToPresets()">' + CHEVRON_LEFT_SVG + tr('period.presetsBack') + '</button>' +
       '<div class="cal-nav" style="margin:6px 0">' +
         '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="invNavPeriodCalMonth(-1)">' + CHEVRON_LEFT_SVG + '</button>' +
         '<div class="month-label" id="invPeriodMonthLabel">' + MONTH_NAMES[invPeriodCalMonth] + ' ' + invPeriodCalYear + '</div>' +
         '<button type="button" class="btn btn-icon btn-ghost btn-sm" onclick="invNavPeriodCalMonth(1)">' + CHEVRON_RIGHT_SVG + '</button>' +
       '</div>' +
-      '<div class="cal-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>' +
+      '<div class="cal-weekdays">' + weekdayHeaderHtml() + '</div>' +
       '<div class="cal-days" id="invPeriodCalDays"></div>' +
-      '<button type="button" class="btn btn-primary btn-sm period-apply" onclick="invApplyCustomRange()">Применить</button>';
+      '<button type="button" class="btn btn-primary btn-sm period-apply" onclick="invApplyCustomRange()">' + tr('period.apply') + '</button>';
     invBuildCustomRangeCalendar();
     return;
   }
@@ -2379,10 +2398,10 @@ function invRenderPeriodOptions() {
   var rows = invPeriodPresets.map(function(p, idx){
     var active = p.start === invCurrentPeriodStart && p.end === invCurrentPeriodEnd;
     return '<div class="tag-option" onclick="invSelectPreset(' + idx + ')">' +
-      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(p.label) + '</div>';
+      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t('period.' + p.key)) + '</div>';
   }).join('');
   rows += '<div class="tag-option" onclick="invOpenCustomRange()">' +
-    '<span class="tag-check-slot">' + (invIsCustomActive() ? CHECK_SVG : '') + '</span>Свой период →</div>';
+    '<span class="tag-check-slot">' + (invIsCustomActive() ? CHECK_SVG : '') + '</span>' + tr('period.custom') + '</div>';
   box.innerHTML = rows;
 }
 function invSelectPreset(idx) {
@@ -2470,18 +2489,17 @@ function invRefreshResults() {
   }
   emptyEl.style.display = 'none';
   resultsEl.style.display = 'block';
-  document.getElementById('invStatHours').textContent = stats.hours + 'ч';
+  document.getElementById('invStatHours').textContent = stats.hours + tr('unit.h');
   document.getElementById('invStatMoney').textContent = formatMoneyByCur(stats.moneyByCur);
 }
 
 /* ---- i18n: covers Invoices tab, Settings, invoice modal + PDF so far ---- */
 var I18N = {
   ru: {
-    'tab.invoices': 'Счета', 'settings.title': 'Настройки', 'settings.done': 'Готово',
+    'tab.timer': 'Таймер', 'tab.history': 'История', 'tab.invoices': 'Счета', 'settings.title': 'Настройки', 'settings.done': 'Готово',
     'settings.currency.title': 'Валюта',
     'settings.currency.hint': 'Ярлык для новых записей — без конвертации. Старые записи сохраняют ту валюту, с которой были созданы, поэтому при смене возможен показ нескольких валют одновременно в статистике.',
     'settings.lang.title': 'Язык',
-    'settings.lang.hint': 'Пока переведены Счета, Настройки и PDF-документ. Таймер и Историю переведём следующим шагом.',
     'inv.project': 'Проект', 'inv.period': 'Период', 'inv.pickTag': 'Выбрать тег',
     'inv.hours': 'Часов', 'inv.earned': 'Заработано', 'inv.generate': 'Выставить счёт',
     'modal.title': 'Выставить счёт', 'modal.from': 'От кого', 'modal.to': 'Кому',
@@ -2499,14 +2517,37 @@ var I18N = {
     'tax.earned': 'Заработано (по трекеру)', 'tax.addon': 'Надбавка на налог', 'tax.toInvoice': 'Выставить клиенту',
     'pdf.title': 'СЧЁТ', 'pdf.period': 'Период', 'pdf.from': 'ОТ КОГО', 'pdf.to': 'КОМУ',
     'pdf.task': 'ЗАДАЧА', 'pdf.hours': 'ЧАСЫ', 'pdf.amount': 'СУММА', 'pdf.taxid': 'Налог. номер',
-    'pdf.earned': 'Заработано', 'pdf.addon': 'Надбавка на налог', 'pdf.total': 'К оплате', 'pdf.sig': 'Подпись'
+    'pdf.earned': 'Заработано', 'pdf.addon': 'Надбавка на налог', 'pdf.total': 'К оплате', 'pdf.sig': 'Подпись',
+
+    'timer.start': 'Начать запись', 'timer.hotkeyStart': '⌘/Ctrl+Enter — начать запись',
+    'timer.recording': 'ИДЁТ ЗАПИСЬ', 'timer.titlePh': 'Без названия',
+    'timer.tagProject': 'Тег / проект', 'timer.noTag': 'Без тега',
+    'timer.searchOrNewTag': 'Поиск или новый тег', 'timer.noTagsYet': 'Тегов пока нет',
+    'timer.rate': 'Ставка', 'timer.noPay': 'Без оплаты', 'timer.discardTitle': 'Сбросить без сохранения',
+    'timer.pause': 'Пауза', 'timer.resume': 'Продолжить',
+    'timer.saveIdle': 'Сохранить', 'timer.saveSaving': 'Сохранение…', 'timer.saveSaved': 'Сохранено',
+    'timer.hotkeyRunning': '⌘/Ctrl+Enter — сохранить · Space — пауза',
+    'discard.text1': 'Сбросить текущую запись? ', 'discard.text2': ' пропадёт без сохранения.',
+    'discard.yes': 'Да, сбросить', 'common.cancel': 'Отмена', 'common.yesDelete': 'Да, удалить',
+    'tag.deleteConfirm1': 'Удалить тег «', 'tag.deleteConfirm2': '»?', 'tag.deleteTitle': 'Удалить тег',
+    'tag.addPrefix': 'Добавить «', 'tag.addSuffix': '»',
+    'entry.deleteConfirm1': 'Удалить «', 'entry.deleteConfirm2': '»? Это действие нельзя отменить.',
+    'entry.deleteTitle': 'Удалить', 'entry.editTitle': 'Редактировать', 'entry.saveTitle': 'Сохранить',
+    'entry.cancelTitle': 'Отмена', 'entry.titlePh': 'Название задачи', 'entry.datePh': 'ДД.ММ.ГГГГ',
+    'entry.timePh': 'ЧЧ:ММ', 'entry.openCalTitle': 'Открыть календарь',
+    'history.searchPh': 'Поиск по названию', 'history.tags': 'Теги',
+    'history.totalHours': 'Всего часов', 'history.earned': 'Заработано', 'history.tasks': 'Задач',
+    'history.addEntry': '+ Добавить', 'history.noResults1': 'Ничего не найдено по «', 'history.noResults2': '»',
+    'history.emptyDay': 'Нет записей за этот день', 'unit.h': 'ч',
+    'period.today': 'Сегодня', 'period.week': 'Эта неделя', 'period.month': 'Этот месяц',
+    'period.lastMonth': 'Прошлый месяц', 'period.last30': 'Последние 30 дней',
+    'period.custom': 'Свой период →', 'period.apply': 'Применить', 'period.presetsBack': 'Пресеты'
   },
   en: {
-    'tab.invoices': 'Invoices', 'settings.title': 'Settings', 'settings.done': 'Done',
+    'tab.timer': 'Timer', 'tab.history': 'History', 'tab.invoices': 'Invoices', 'settings.title': 'Settings', 'settings.done': 'Done',
     'settings.currency.title': 'Currency',
     'settings.currency.hint': 'A label for new records — no conversion. Old records keep the currency they were created in, so a mix may show up in stats after switching.',
     'settings.lang.title': 'Language',
-    'settings.lang.hint': 'Invoices, Settings and the PDF are translated so far. Timer and History are next.',
     'inv.project': 'Project', 'inv.period': 'Period', 'inv.pickTag': 'Pick a tag',
     'inv.hours': 'Hours', 'inv.earned': 'Earned', 'inv.generate': 'Generate invoice',
     'modal.title': 'Generate invoice', 'modal.from': 'From', 'modal.to': 'Bill to',
@@ -2524,23 +2565,59 @@ var I18N = {
     'tax.earned': 'Earned (tracked)', 'tax.addon': 'Tax add-on', 'tax.toInvoice': 'Invoice total',
     'pdf.title': 'INVOICE', 'pdf.period': 'Period', 'pdf.from': 'FROM', 'pdf.to': 'BILL TO',
     'pdf.task': 'TASK', 'pdf.hours': 'HOURS', 'pdf.amount': 'AMOUNT', 'pdf.taxid': 'Tax ID',
-    'pdf.earned': 'Earned', 'pdf.addon': 'Tax add-on', 'pdf.total': 'Total due', 'pdf.sig': 'Signature'
+    'pdf.earned': 'Earned', 'pdf.addon': 'Tax add-on', 'pdf.total': 'Total due', 'pdf.sig': 'Signature',
+
+    'timer.start': 'Start tracking', 'timer.hotkeyStart': '⌘/Ctrl+Enter — start tracking',
+    'timer.recording': 'RECORDING', 'timer.titlePh': 'Untitled',
+    'timer.tagProject': 'Tag / project', 'timer.noTag': 'No tag',
+    'timer.searchOrNewTag': 'Search or new tag', 'timer.noTagsYet': 'No tags yet',
+    'timer.rate': 'Rate', 'timer.noPay': 'No rate', 'timer.discardTitle': 'Discard without saving',
+    'timer.pause': 'Pause', 'timer.resume': 'Resume',
+    'timer.saveIdle': 'Save', 'timer.saveSaving': 'Saving…', 'timer.saveSaved': 'Saved',
+    'timer.hotkeyRunning': '⌘/Ctrl+Enter — save · Space — pause',
+    'discard.text1': 'Discard the current recording? ', 'discard.text2': ' will be lost.',
+    'discard.yes': 'Yes, discard', 'common.cancel': 'Cancel', 'common.yesDelete': 'Yes, delete',
+    'tag.deleteConfirm1': 'Delete tag "', 'tag.deleteConfirm2': '"?', 'tag.deleteTitle': 'Delete tag',
+    'tag.addPrefix': 'Add "', 'tag.addSuffix': '"',
+    'entry.deleteConfirm1': 'Delete "', 'entry.deleteConfirm2': '"? This cannot be undone.',
+    'entry.deleteTitle': 'Delete', 'entry.editTitle': 'Edit', 'entry.saveTitle': 'Save',
+    'entry.cancelTitle': 'Cancel', 'entry.titlePh': 'Task name', 'entry.datePh': 'DD.MM.YYYY',
+    'entry.timePh': 'HH:MM', 'entry.openCalTitle': 'Open calendar',
+    'history.searchPh': 'Search by task name', 'history.tags': 'Tags',
+    'history.totalHours': 'Total hours', 'history.earned': 'Earned', 'history.tasks': 'Tasks',
+    'history.addEntry': '+ Add', 'history.noResults1': 'Nothing found for "', 'history.noResults2': '"',
+    'history.emptyDay': 'No entries for this day', 'unit.h': 'h',
+    'period.today': 'Today', 'period.week': 'This week', 'period.month': 'This month',
+    'period.lastMonth': 'Last month', 'period.last30': 'Last 30 days',
+    'period.custom': 'Custom range →', 'period.apply': 'Apply', 'period.presetsBack': 'Presets'
   }
 };
 function getLang() { return localStorage.getItem('tt_lang') || 'ru'; }
 function setLang(l) { localStorage.setItem('tt_lang', l); }
-function t(key) { return (I18N[getLang()] && I18N[getLang()][key]) || key; }
+function tr(key) { return (typeof I18N !== 'undefined' && I18N[getLang()] && I18N[getLang()][key]) || key; }
 function applyI18n() {
-  document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
-  document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
-  if (!invoiceProjectTag) document.getElementById('invProjectLabel').textContent = t('inv.pickTag');
+  document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = tr(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.placeholder = tr(el.getAttribute('data-i18n-ph')); });
+  document.querySelectorAll('[data-i18n-title]').forEach(function (el) { el.title = tr(el.getAttribute('data-i18n-title')); });
+  document.querySelectorAll('[data-i18n-alt]').forEach(function (el) { el.alt = tr(el.getAttribute('data-i18n-alt')); });
+  if (!invoiceProjectTag) document.getElementById('invProjectLabel').textContent = tr('inv.pickTag');
 }
 
 /* ---- settings modal ---- */
 function selectSettingsLang(l) {
   setLang(l);
   document.querySelectorAll('#langPick button').forEach(function (b) { b.dataset.active = b.dataset.lang === l ? 'true' : 'false'; });
+  applyLocaleArrays();
   applyI18n();
+  refreshRateLabel();
+  buildCalendar();
+  renderDay(currentDateKey);
+  updateStats();
+  currentPeriodRange = presetRangeLabel({ start: currentPeriodStart, end: currentPeriodEnd });
+  document.getElementById('periodLabel').textContent = currentPeriodRange;
+  invCurrentPeriodRange = presetRangeLabel({ start: invCurrentPeriodStart, end: invCurrentPeriodEnd });
+  document.getElementById('invPeriodLabel').textContent = invCurrentPeriodRange;
+  invRefreshResults();
 }
 function openSettings() {
   document.querySelectorAll('#currencyPick button').forEach(function(b){ b.dataset.active = b.dataset.cur === getCurrency() ? 'true' : 'false'; });
@@ -2617,7 +2694,7 @@ function refreshSigPreview() {
 function openInvoiceModal() {
   if (!invoiceProjectTag) return;
   if (!sigCanvas) initSigPad();
-  document.getElementById('invModalHint').textContent = 'Проект: ' + invoiceProjectTag + ' · Период: ' + invCurrentPeriodRange;
+  document.getElementById('invModalHint').textContent = tr('inv.project') + ': ' + invoiceProjectTag + ' · ' + tr('inv.period') + ': ' + invCurrentPeriodRange;
   document.getElementById('invTaxRate').value = '';
   clearSigPad_soft();
   refreshSigPreview();
@@ -2632,14 +2709,14 @@ function updateTaxBreakdown() {
   var stats = computeStatsForRange(invCurrentPeriodStart, invCurrentPeriodEnd, [invoiceProjectTag]);
   var taxPct = parseFloat(document.getElementById('invTaxRate').value) || 0;
   var codes = Object.keys(stats.moneyByCur).filter(function (c) { return stats.moneyByCur[c]; });
-  if (!codes.length) { box.innerHTML = t('tax.noAmounts'); return; }
+  if (!codes.length) { box.innerHTML = tr('tax.noAmounts'); return; }
   box.innerHTML = codes.map(function (cur) {
     var net = stats.moneyByCur[cur];
     var gross = taxPct > 0 ? net / (1 - taxPct / 100) : net;
     var addOn = Math.round(gross - net);
-    var lines = [t('tax.earned') + ': <b>' + formatMoney(net, curSymbol(cur)) + '</b>'];
-    if (taxPct > 0) lines.push(t('tax.addon') + ' (' + taxPct + '%): <b>' + formatMoney(addOn, curSymbol(cur)) + '</b>');
-    lines.push(t('tax.toInvoice') + ': <b>' + formatMoney(Math.round(gross), curSymbol(cur)) + '</b>');
+    var lines = [tr('tax.earned') + ': <b>' + formatMoney(net, curSymbol(cur)) + '</b>'];
+    if (taxPct > 0) lines.push(tr('tax.addon') + ' (' + taxPct + '%): <b>' + formatMoney(addOn, curSymbol(cur)) + '</b>');
+    lines.push(tr('tax.toInvoice') + ': <b>' + formatMoney(Math.round(gross), curSymbol(cur)) + '</b>');
     return lines.join('<br>');
   }).join('<hr style="border:none;border-top:1px solid var(--border);margin:8px 0;">');
 }
@@ -2697,25 +2774,25 @@ function generateInvoicePdf() {
   var y = 60;
 
   doc.setFont('Roboto', 'bold'); doc.setFontSize(22); doc.setTextColor(20);
-  doc.text(t('pdf.title'), margin, y);
+  doc.text(tr('pdf.title'), margin, y);
   y += 20;
   doc.setFont('Roboto', 'normal'); doc.setFontSize(10); doc.setTextColor(120);
-  doc.text(t('pdf.period') + ': ' + invCurrentPeriodStart + ' – ' + invCurrentPeriodEnd, margin, y);
+  doc.text(tr('pdf.period') + ': ' + invCurrentPeriodStart + ' – ' + invCurrentPeriodEnd, margin, y);
   y += 34;
 
   var colW = (pageW - margin * 2 - 24) / 2;
   var col2X = margin + colW + 24;
   doc.setTextColor(140); doc.setFontSize(8);
-  doc.text(t('pdf.from'), margin, y);
-  doc.text(t('pdf.to'), col2X, y);
+  doc.text(tr('pdf.from'), margin, y);
+  doc.text(tr('pdf.to'), col2X, y);
   y += 14;
   doc.setTextColor(20); doc.setFont('Roboto', 'bold'); doc.setFontSize(11);
   doc.text(fromName, margin, y);
   doc.text(toName, col2X, y);
   y += 14;
   doc.setFont('Roboto', 'normal'); doc.setFontSize(9); doc.setTextColor(60);
-  var fromLines = [fromAddress, fromEmail, fromTaxId ? t('pdf.taxid') + ': ' + fromTaxId : '', fromReq].filter(Boolean);
-  var toLines = [toAddress, toEmail, toTaxId ? t('pdf.taxid') + ': ' + toTaxId : '', toReq].filter(Boolean);
+  var fromLines = [fromAddress, fromEmail, fromTaxId ? tr('pdf.taxid') + ': ' + fromTaxId : '', fromReq].filter(Boolean);
+  var toLines = [toAddress, toEmail, toTaxId ? tr('pdf.taxid') + ': ' + toTaxId : '', toReq].filter(Boolean);
   var lineY1 = y;
   fromLines.forEach(function (line) {
     var wrapped = doc.splitTextToSize(line, colW);
@@ -2737,9 +2814,9 @@ function generateInvoicePdf() {
   doc.setDrawColor(220); doc.line(margin, y, pageW - margin, y);
   y += 16;
   doc.setFontSize(8); doc.setTextColor(140);
-  doc.text(t('pdf.task'), margin, y);
-  doc.text(t('pdf.hours'), hoursX, y, { align: 'right' });
-  doc.text(t('pdf.amount'), rightEdge, y, { align: 'right' });
+  doc.text(tr('pdf.task'), margin, y);
+  doc.text(tr('pdf.hours'), hoursX, y, { align: 'right' });
+  doc.text(tr('pdf.amount'), rightEdge, y, { align: 'right' });
   y += 10;
   doc.setDrawColor(220); doc.line(margin, y, pageW - margin, y);
   y += 20;
@@ -2748,7 +2825,7 @@ function generateInvoicePdf() {
   rows.forEach(function (r) {
     var titleLines = doc.splitTextToSize(r.title, taskColW);
     doc.text(titleLines, margin, y);
-    doc.text(String(Math.round(r.hours * 10) / 10) + 'ч', hoursX, y, { align: 'right' });
+    doc.text(String(Math.round(r.hours * 10) / 10) + tr('unit.h'), hoursX, y, { align: 'right' });
     doc.text(formatMoney(r.money, curSymbol(r.currency)) || '—', rightEdge, y, { align: 'right' });
     y += 18 * titleLines.length + 8;
   });
@@ -2762,16 +2839,16 @@ function generateInvoicePdf() {
     var net = stats.moneyByCur[cur];
     var gross = taxPct > 0 ? net / (1 - taxPct / 100) : net;
     doc.setFont('Roboto', 'normal'); doc.setFontSize(10); doc.setTextColor(100);
-    doc.text(t('pdf.earned'), totalsX, y);
+    doc.text(tr('pdf.earned'), totalsX, y);
     doc.text(formatMoney(net, curSymbol(cur)) || '—', rightEdge, y, { align: 'right' });
     y += 20;
     if (taxPct > 0) {
-      doc.text(t('pdf.addon') + ' (' + taxPct + '%)', totalsX, y);
+      doc.text(tr('pdf.addon') + ' (' + taxPct + '%)', totalsX, y);
       doc.text(formatMoney(Math.round(gross - net), curSymbol(cur)) || '—', rightEdge, y, { align: 'right' });
       y += 20;
     }
     doc.setFont('Roboto', 'bold'); doc.setFontSize(13); doc.setTextColor(20);
-    doc.text(t('pdf.total'), totalsX, y);
+    doc.text(tr('pdf.total'), totalsX, y);
     doc.text(formatMoney(Math.round(gross), curSymbol(cur)) || '—', rightEdge, y, { align: 'right' });
     y += 32;
   });
@@ -2783,7 +2860,7 @@ function generateInvoicePdf() {
       y += 56;
       doc.setDrawColor(180); doc.line(margin, y, margin + 200, y);
       doc.setFontSize(8); doc.setTextColor(140);
-      doc.text(t('pdf.sig'), margin, y + 12);
+      doc.text(tr('pdf.sig'), margin, y + 12);
     } catch (err) { /* unsupported image format — skip signature block */ }
   }
 
@@ -2812,6 +2889,7 @@ document.addEventListener('keydown', function (e) {
 
 /* ---- restore saved data on launch ---- */
 loadState();
+applyLocaleArrays();
 buildCalendar();
 renderDay(currentDateKey);
 updateStats();
