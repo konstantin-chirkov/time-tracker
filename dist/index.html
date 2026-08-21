@@ -572,14 +572,14 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .inv-modal-hint-row .btn { flex: none; }
 .inv-history-warning { color: var(--destructive); margin: -8px 0 20px; font-size: 12px; }
 .inv-history-wrap { margin-top: 24px; }
-.inv-history-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.inv-history-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .inv-history-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
 .inv-history-search { width: 180px; height: 34px; font-size: 12.5px; }
-.inv-history-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px; }
+#invHistoryList { display: flex; flex-direction: column; gap: 18px; }
+.inv-history-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .inv-history-project { font-size: 13px; font-weight: 500; }
 .inv-history-meta { font-size: 12px; color: var(--muted-foreground); margin-top: 2px; }
 .inv-history-actions { display: flex; gap: 4px; flex: none; }
-.inv-history-row.discard-confirm { border-color: var(--destructive); }
 .inv-modal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
 .inv-modal-cols textarea.input { height: auto; padding: 8px 12px; resize: vertical; min-height: 56px; line-height: 1.4; }
 .inv-field-label { display: block; font-size: 12px; font-weight: 500; color: var(--muted-foreground); margin-bottom: 6px; margin-top: 10px; }
@@ -1857,17 +1857,64 @@ function displayRowHtml(e, startFn, i, extraArg) {
     (startFn ? '<button class="row-edit-btn" onclick="' + startFn + '(' + (extraArg !== undefined ? extraArg + ', ' : '') + i + ')" title="' + escHtml(tr('entry.editTitle')) + '">' + PENCIL_SVG + '</button>' : '') +
     '</div>';
 }
-function jumpToDayAndEdit(dateKey, entryIndex) {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('historyGrid').style.display = '';
-  document.getElementById('searchResults').style.display = 'none';
-  var parts = dateKey.split('-');
-  calYear = parseInt(parts[0], 10);
-  calMonth = parseInt(parts[1], 10) - 1;
-  currentDateKey = dateKey;
+var searchEditDateKey = null;
+var searchEditIndex = -1;
+var searchEditDeleteConfirming = false;
+function startSearchEdit(dateKey, idx) {
+  searchEditDateKey = dateKey;
+  searchEditIndex = idx;
+  searchEditDeleteConfirming = false;
+  renderSearchResults(lastSearchQuery);
+}
+function cancelSearchEdit() {
+  searchEditDateKey = null;
+  searchEditIndex = -1;
+  searchEditDeleteConfirming = false;
+  renderSearchResults(lastSearchQuery);
+}
+function askDeleteSearchEntry() { searchEditDeleteConfirming = true; renderSearchResults(lastSearchQuery); }
+function cancelDeleteConfirmSearch() { searchEditDeleteConfirming = false; renderSearchResults(lastSearchQuery); }
+function deleteSearchEntry() {
+  dayDetails[searchEditDateKey].entries.splice(searchEditIndex, 1);
+  recomputeDayTotal(searchEditDateKey);
   buildCalendar();
-  renderDay(dateKey);
-  startDdEdit(entryIndex);
+  if (currentDateKey === searchEditDateKey) renderDay(currentDateKey);
+  updateStats();
+  cancelSearchEdit();
+}
+function saveSearchEdit() {
+  var idBase = 'search' + searchEditIndex;
+  var dateKey = searchEditDateKey;
+  var e = dayDetails[dateKey].entries[searchEditIndex];
+  var start = normalizeTimeInput(document.getElementById('et-start-' + idBase).value) || e.start;
+  var end = normalizeTimeInput(document.getElementById('et-end-' + idBase).value) || e.end;
+  var newDateKey = readPickedDate(idBase);
+  var excludeIdx = (newDateKey === dateKey) ? searchEditIndex : -1;
+  if (!checkEntryTimeValid(idBase, newDateKey, start, end, excludeIdx)) return;
+  var title = document.getElementById('et-title-' + idBase).value.trim();
+  if (title) e.title = title;
+  e.tag = entryTagValue[idBase] || e.tag;
+  e.start = start; e.end = end; e.time = start + '–' + end;
+  var rateRaw = document.getElementById('et-rate-' + idBase).value.trim();
+  var durH = durationHours(start, end);
+  e.rate = rateRaw || null;
+  e.currency = document.getElementById('et-cur-' + idBase).value;
+  e.money = rateRaw ? formatMoney(Math.round(durH * parseRate(rateRaw)), curSymbol(e.currency)) : null;
+  e.date = newDateKey;
+
+  if (newDateKey !== dateKey) {
+    dayDetails[dateKey].entries.splice(searchEditIndex, 1);
+    recomputeDayTotal(dateKey);
+    if (!dayDetails[newDateKey]) dayDetails[newDateKey] = { date: dayHeading(newDateKey), total: '', entries: [] };
+    dayDetails[newDateKey].entries.push(e);
+    recomputeDayTotal(newDateKey);
+  } else {
+    recomputeDayTotal(dateKey);
+  }
+  buildCalendar();
+  if (currentDateKey === dateKey || currentDateKey === newDateKey) renderDay(currentDateKey);
+  updateStats();
+  cancelSearchEdit();
 }
 function editFieldsHtml(idBase, e, tagValue) {
   var parts = (e.time || '–').split('–');
@@ -2463,6 +2510,7 @@ document.addEventListener('click', function(e){
 });
 
 /* ---- search (over real dayDetails, newest day first) ---- */
+var lastSearchQuery = '';
 function handleSearch(query) {
   query = query.trim().toLowerCase();
   var grid = document.getElementById('historyGrid');
@@ -2470,6 +2518,9 @@ function handleSearch(query) {
   if (!query) {
     grid.style.display = '';
     results.style.display = 'none';
+    searchEditDateKey = null;
+    searchEditIndex = -1;
+    searchEditDeleteConfirming = false;
     return;
   }
   grid.style.display = 'none';
@@ -2477,6 +2528,7 @@ function handleSearch(query) {
   renderSearchResults(query);
 }
 function renderSearchResults(query) {
+  lastSearchQuery = query;
   var el = document.getElementById('searchResults');
   var dateKeys = Object.keys(dayDetails).sort().reverse();
   var groups = [];
@@ -2492,7 +2544,12 @@ function renderSearchResults(query) {
     return;
   }
   el.innerHTML = groups.map(function(g){
-    var rows = g.matches.map(function(m){ return displayRowHtml(m.entry, 'jumpToDayAndEdit', m.idx, "'" + g.key + "'"); }).join('');
+    var rows = g.matches.map(function(m){
+      if (g.key === searchEditDateKey && m.idx === searchEditIndex) {
+        return editRowHtml(m.entry, m.idx, 'search', 'saveSearchEdit', 'cancelSearchEdit', 'deleteSearchEntry', 'askDeleteSearchEntry', 'cancelDeleteConfirmSearch', searchEditDeleteConfirming);
+      }
+      return displayRowHtml(m.entry, 'startSearchEdit', m.idx, "'" + g.key + "'");
+    }).join('');
     return '<div class="search-group"><div class="search-date">' + dayHeading(g.key) + '</div><div class="entry-list">' + rows + '</div></div>';
   }).join('');
 }
