@@ -423,6 +423,18 @@ body {
 .tag-option-add svg { width: 14px; height: 14px; flex: none; color: var(--muted-foreground); }
 .tag-check-slot { width: 14px; height: 14px; flex: none; display: inline-flex; color: var(--foreground); }
 .tag-empty { padding: 10px 8px; font-size: 12px; color: var(--muted-foreground); }
+.tag-option-label { flex: 1; min-width: 0; display: inline-flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.tag-option-delete {
+  flex: none; width: 22px; height: 22px; padding: 0; border: none; border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--muted-foreground); opacity: 0; cursor: pointer;
+  transition: opacity .1s, background .1s, color .1s;
+}
+.tag-option-delete svg { width: 13px; height: 13px; }
+.tag-option:hover .tag-option-delete { opacity: 1; }
+.tag-option-delete:hover { background: var(--destructive); color: var(--destructive-foreground); }
+.tag-options .discard-confirm { padding: 7px 8px; font-size: 12px; }
+.tag-options .discard-confirm-actions .btn-sm { height: 24px; padding: 0 8px; font-size: 11px; }
 
 .history-body {
   display: grid;
@@ -514,7 +526,7 @@ body {
           <div class="rec-row" id="recRow"><span class="rec-dot"></span>Идёт запись</div>
           <div class="timer-display tnum" id="timerDisplay">00:00:00</div>
 
-          <input class="title-input" id="titleInput" type="text" value="" placeholder="Без названия — 20.08, 15:47">
+          <input class="title-input" id="titleInput" type="text" value="" placeholder="Без названия">
 
           <div class="field-grid">
             <div>
@@ -658,6 +670,11 @@ function updateRateForTag(tag) {
   if (input) input.value = tag ? (tagLastRate[tag] || '') : '';
 }
 
+var currentEntryDefaultTitle = '';
+function defaultEntryTitle() {
+  var d = new Date();
+  return 'Без названия — ' + pad2(d.getDate()) + '.' + pad2(d.getMonth() + 1) + ', ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
 function startTimer() {
   timerState = 'running';
   seconds = 0;
@@ -666,6 +683,8 @@ function startTimer() {
   document.getElementById('idleView').style.display = 'none';
   document.getElementById('runningView').style.display = '';
   document.getElementById('timerDisplay').textContent = fmt(0);
+  currentEntryDefaultTitle = defaultEntryTitle();
+  document.getElementById('titleInput').placeholder = currentEntryDefaultTitle;
   document.getElementById('titleInput').value = '';
   document.getElementById('recRow').style.opacity = '1';
   currentProjectTag = allTags.length ? allTags[0] : null;
@@ -686,7 +705,7 @@ function resetToIdle() {
 }
 function saveEntry() {
   var titleInput = document.getElementById('titleInput');
-  var titleVal = titleInput.value.trim() || titleInput.placeholder;
+  var titleVal = titleInput.value.trim() || currentEntryDefaultTitle || defaultEntryTitle();
   var rateVal = document.getElementById('rateInput').value.trim();
   if (rateVal && currentProjectTag) tagLastRate[currentProjectTag] = rateVal;
 
@@ -760,10 +779,11 @@ var CHEVRON_DOWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 var MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 var MONTH_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 var MONTH_SHORT_GEN = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
-var TODAY_Y = 2026, TODAY_M = 7, TODAY_D = 20;
-var TODAY_KEY = isoDate(TODAY_Y, TODAY_M, TODAY_D);
 function pad2(n) { return (n < 10 ? '0' : '') + n; }
 function isoDate(y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); }
+var _now = new Date();
+var TODAY_Y = _now.getFullYear(), TODAY_M = _now.getMonth(), TODAY_D = _now.getDate();
+var TODAY_KEY = isoDate(TODAY_Y, TODAY_M, TODAY_D);
 function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
 function firstWeekdayMon(y, m) { return (new Date(y, m, 1).getDay() + 6) % 7; }
 function monthGridCells(y, m) {
@@ -862,6 +882,68 @@ var allTags = [];
 function tagExists(name) { return allTags.some(function(t){ return t.toLowerCase() === name.toLowerCase(); }); }
 function jsEsc(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
+/* ---- delete a tag: shared across timer field, history filter, entry-edit field ---- */
+var tagDeleteConfirm = null;
+function tagOptionConfirmHtml(t) {
+  return '<div class="discard-confirm"><span>Удалить тег «' + escHtml(t) + '»?</span>' +
+    '<div class="discard-confirm-actions">' +
+      '<button class="btn btn-sm btn-destructive-ghost" onclick="confirmDeleteTag(\'' + jsEsc(t) + '\', event)">Да, удалить</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="cancelDeleteTag(event)">Отмена</button>' +
+    '</div></div>';
+}
+function askDeleteTag(name, e) {
+  if (e) e.stopPropagation();
+  tagDeleteConfirm = name;
+  rerenderOpenTagPopovers();
+}
+function cancelDeleteTag(e) {
+  if (e) e.stopPropagation();
+  tagDeleteConfirm = null;
+  rerenderOpenTagPopovers();
+}
+function confirmDeleteTag(name, e) {
+  if (e) e.stopPropagation();
+  var idx = allTags.indexOf(name);
+  if (idx !== -1) allTags.splice(idx, 1);
+  delete selectedTags[name];
+  if (typeof currentProjectTag !== 'undefined' && currentProjectTag === name) {
+    currentProjectTag = allTags.length ? allTags[0] : null;
+    var trigLbl = document.getElementById('projectTriggerLabel');
+    if (trigLbl) trigLbl.textContent = currentProjectTag || 'Без тега';
+  }
+  Object.keys(entryTagValue).forEach(function(idBase){
+    if (entryTagValue[idBase] === name) {
+      entryTagValue[idBase] = 'Без тега';
+      var entryLbl = document.getElementById('entryTagLabel-' + idBase);
+      if (entryLbl) entryLbl.textContent = 'Без тега';
+    }
+  });
+  tagDeleteConfirm = null;
+  saveState();
+  if (typeof updateTagTrigger === 'function') updateTagTrigger();
+  if (typeof updateStats === 'function') updateStats();
+  rerenderOpenTagPopovers();
+}
+function rerenderOpenTagPopovers() {
+  var tagPop = document.getElementById('tagPopover');
+  if (tagPop && tagPop.style.display !== 'none') {
+    var i1 = tagPop.querySelector('input.input');
+    renderTagOptions(i1 ? i1.value : '');
+  }
+  var projPop = document.getElementById('projectPopover');
+  if (projPop && projPop.style.display !== 'none') {
+    var i2 = projPop.querySelector('input.input');
+    renderProjectOptions(i2 ? i2.value : '');
+  }
+  document.querySelectorAll('.tag-popover[id^="entryTagPop-"]').forEach(function(pop){
+    if (pop.style.display !== 'none') {
+      var idBase = pop.id.slice('entryTagPop-'.length);
+      var i3 = pop.querySelector('input.input');
+      renderEntryTagOptions(idBase, i3 ? i3.value : '');
+    }
+  });
+}
+
 /* ---- entry-edit tag field: same search-or-create combo as elsewhere, own state per instance ---- */
 var entryTagValue = {};
 function tagFieldHtml(idBase, tagValue) {
@@ -891,9 +973,14 @@ function renderEntryTagOptions(idBase, filterStr) {
   var q = filterStr.toLowerCase();
   var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
   var rows = list.map(function(t){
+    if (t === tagDeleteConfirm) return tagOptionConfirmHtml(t);
     var active = t === entryTagValue[idBase];
-    return '<div class="tag-option" onclick="selectEntryTag(\'' + idBase + '\',\'' + jsEsc(t) + '\')">' +
-      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t) + '</div>';
+    return '<div class="tag-option">' +
+      '<span class="tag-option-label" onclick="selectEntryTag(\'' + idBase + '\',\'' + jsEsc(t) + '\')">' +
+        '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t) +
+      '</span>' +
+      '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="Удалить тег">' + TRASH_SVG + '</button>' +
+    '</div>';
   }).join('');
   var html = rows;
   if (filterStr && !tagExists(filterStr)) {
@@ -1165,9 +1252,13 @@ function renderTagOptions(filterStr) {
   var q = filterStr.toLowerCase();
   var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
   var rows = list.map(function(t){
+    if (t === tagDeleteConfirm) return tagOptionConfirmHtml(t);
     var id = 'tagopt-' + t.replace(/[^a-zA-Zа-яА-Я0-9]/g, '');
-    return '<label class="tag-option" for="' + id + '"><input type="checkbox" id="' + id + '" ' +
-      (selectedTags[t] ? 'checked' : '') + ' onchange="toggleTag(\'' + jsEsc(t) + '\')">' + escHtml(t) + '</label>';
+    return '<div class="tag-option">' +
+      '<label class="tag-option-label" for="' + id + '"><input type="checkbox" id="' + id + '" ' +
+        (selectedTags[t] ? 'checked' : '') + ' onchange="toggleTag(\'' + jsEsc(t) + '\')"><span>' + escHtml(t) + '</span></label>' +
+      '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="Удалить тег">' + TRASH_SVG + '</button>' +
+    '</div>';
   }).join('');
   var html = rows;
   if (filterStr && !tagExists(filterStr)) {
@@ -1212,9 +1303,14 @@ function renderProjectOptions(filterStr) {
   var q = filterStr.toLowerCase();
   var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
   var rows = list.map(function(t){
+    if (t === tagDeleteConfirm) return tagOptionConfirmHtml(t);
     var active = t === currentProjectTag;
-    return '<div class="tag-option" onclick="selectProject(\'' + jsEsc(t) + '\')">' +
-      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t) + '</div>';
+    return '<div class="tag-option">' +
+      '<span class="tag-option-label" onclick="selectProject(\'' + jsEsc(t) + '\')">' +
+        '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t) +
+      '</span>' +
+      '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="Удалить тег">' + TRASH_SVG + '</button>' +
+    '</div>';
   }).join('');
   var html = rows;
   if (filterStr && !tagExists(filterStr)) {
