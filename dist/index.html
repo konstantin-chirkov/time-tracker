@@ -259,35 +259,35 @@ body {
 /* ---------- save button: three-state motion (idle → saving → saved) ---------- */
 .save-btn-wrap { position: relative; }
 canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-#saveBtn { position: relative; transition: background .15s ease, opacity .15s ease, transform .15s cubic-bezier(.34,1.56,.64,1); }
-#saveBtn.is-saving { transform: scale(1.05); }
+#saveBtn, #generatePdfBtn { position: relative; transition: background .15s ease, opacity .15s ease, transform .15s cubic-bezier(.34,1.56,.64,1); }
+#saveBtn.is-saving, #generatePdfBtn.is-saving { transform: scale(1.05); }
 .save-icon-slot { position: relative; width: 15px; height: 15px; flex: none; }
 .save-icon-slot svg { position: absolute; inset: 0; width: 15px; height: 15px; transition: opacity .18s ease, transform .22s cubic-bezier(.34,1.56,.64,1); }
 .save-icon-square { opacity: 1; transform: scale(1) rotate(0deg); }
 .save-icon-clock, .save-icon-check { opacity: 0; transform: scale(.4) rotate(-20deg); }
-#saveBtn.is-saving .save-icon-square { opacity: 0; transform: scale(.4) rotate(20deg); }
-#saveBtn.is-saving .save-icon-clock { opacity: 1; transform: scale(1) rotate(0deg); }
-#saveBtn.is-saved .save-icon-square { opacity: 0; transform: scale(.4) rotate(20deg); }
-#saveBtn.is-saved .save-icon-clock { opacity: 0; transform: scale(.4) rotate(20deg); }
-#saveBtn.is-saved .save-icon-check { opacity: 1; transform: scale(1) rotate(0deg); }
+#saveBtn.is-saving .save-icon-square, #generatePdfBtn.is-saving .save-icon-square { opacity: 0; transform: scale(.4) rotate(20deg); }
+#saveBtn.is-saving .save-icon-clock, #generatePdfBtn.is-saving .save-icon-clock { opacity: 1; transform: scale(1) rotate(0deg); }
+#saveBtn.is-saved .save-icon-square, #generatePdfBtn.is-saved .save-icon-square { opacity: 0; transform: scale(.4) rotate(20deg); }
+#saveBtn.is-saved .save-icon-clock, #generatePdfBtn.is-saved .save-icon-clock { opacity: 0; transform: scale(.4) rotate(20deg); }
+#saveBtn.is-saved .save-icon-check, #generatePdfBtn.is-saved .save-icon-check { opacity: 1; transform: scale(1) rotate(0deg); }
 @keyframes spinHandMin { to { transform: rotate(360deg); } }
 @keyframes spinHandHr { to { transform: rotate(360deg); } }
 .save-icon-clock line { transform-origin: 12px 12px; transform-box: view-box; }
-#saveBtn.is-saving .save-hand-min { animation: spinHandMin .5s linear infinite; }
-#saveBtn.is-saving .save-hand-hr { animation: spinHandHr 1.6s linear infinite; }
+#saveBtn.is-saving .save-hand-min, #generatePdfBtn.is-saving .save-hand-min { animation: spinHandMin .5s linear infinite; }
+#saveBtn.is-saving .save-hand-hr, #generatePdfBtn.is-saving .save-hand-hr { animation: spinHandHr 1.6s linear infinite; }
 
 .save-label { position: relative; display: inline-grid; }
 .save-label span { grid-area: 1 / 1; transition: opacity .16s ease, transform .2s ease; white-space: nowrap; }
 .save-label-idle { opacity: 1; transform: translateY(0); }
 .save-label-saving, .save-label-saved { opacity: 0; transform: translateY(6px); }
-#saveBtn.is-saving .save-label-idle { opacity: 0; transform: translateY(-6px); }
-#saveBtn.is-saving .save-label-saving { opacity: 1; transform: translateY(0); }
-#saveBtn.is-saved .save-label-idle { opacity: 0; transform: translateY(-6px); }
-#saveBtn.is-saved .save-label-saving { opacity: 0; transform: translateY(-6px); }
-#saveBtn.is-saved .save-label-saved { opacity: 1; transform: translateY(0); }
+#saveBtn.is-saving .save-label-idle, #generatePdfBtn.is-saving .save-label-idle { opacity: 0; transform: translateY(-6px); }
+#saveBtn.is-saving .save-label-saving, #generatePdfBtn.is-saving .save-label-saving { opacity: 1; transform: translateY(0); }
+#saveBtn.is-saved .save-label-idle, #generatePdfBtn.is-saved .save-label-idle { opacity: 0; transform: translateY(-6px); }
+#saveBtn.is-saved .save-label-saving, #generatePdfBtn.is-saved .save-label-saving { opacity: 0; transform: translateY(-6px); }
+#saveBtn.is-saved .save-label-saved, #generatePdfBtn.is-saved .save-label-saved { opacity: 1; transform: translateY(0); }
 
 @media (prefers-reduced-motion: reduce) {
-  #saveBtn, .save-icon-slot svg, .save-label span { transition-duration: .01ms !important; }
+  #saveBtn, #generatePdfBtn, .save-icon-slot svg, .save-label span { transition-duration: .01ms !important; }
   .save-hand-min, .save-hand-hr { animation: none !important; }
 }
 
@@ -311,6 +311,31 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
   gap: 14px;
   margin-bottom: 26px;
 }
+.rate-field-row { display: flex; align-items: center; gap: 6px; }
+.rate-field-row .input { flex: 1; min-width: 0; }
+.select-wrap { position: relative; flex: none; display: inline-block; }
+.select-wrap::after {
+  content: ''; position: absolute; right: 9px; top: 50%; pointer-events: none;
+  width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 5px solid var(--muted-foreground); transform: translateY(-2px);
+}
+.currency-select {
+  height: 36px; width: 58px; padding: 0 20px 0 10px; text-align: left;
+  background: var(--background); color: var(--foreground);
+  border: 1px solid var(--input); border-radius: var(--radius-md);
+  font-family: var(--font-sans); font-size: 13px; cursor: pointer;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+}
+.entry-edit-fields .currency-select { height: 32px; width: 50px; padding: 0 18px 0 8px; font-size: 12.5px; }
+.entry-edit-fields .select-wrap::after { right: 7px; }
+.lang-select {
+  height: 36px; padding: 0 26px 0 12px; text-align: left;
+  background: var(--muted); color: var(--foreground);
+  border: 1px solid transparent; border-radius: var(--radius-lg);
+  font-family: var(--font-sans); font-size: 13px; font-weight: 500; cursor: pointer;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+}
+.lang-select-wrap::after { right: 11px; }
 
 .controls-row {
   display: flex; align-items: center; gap: 8px;
@@ -382,8 +407,9 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .entry-edit-title-line::placeholder { color: var(--muted-foreground); font-weight: 400; }
 .entry-edit-title-line:focus-visible { outline: none; }
 .entry-edit-fields { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.entry-edit-error { font-size: 12px; color: var(--destructive); }
 .entry-edit-fields .input { height: 32px; font-size: 12.5px; padding: 0 10px; }
-.entry-edit-fields .combo-trigger { height: 32px; font-size: 12.5px; padding: 0 10px; }
+.entry-edit-fields .combo-trigger { height: 32px; font-size: 12.5px; padding: 0 10px; background: var(--background); }
 .date-field { position: relative; }
 .date-field .input { padding-right: 30px; }
 .date-cal-btn {
@@ -478,7 +504,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 }
 @media (max-width: 420px) {
   .field-grid { grid-template-columns: 1fr; }
-  .entry-edit-date, .entry-edit-tag { width: 100%; }
+  .entry-edit-date, .entry-edit-tag, .entry-edit-rate { width: 100%; }
 }
 
 .search-group { margin-bottom: 26px; }
@@ -525,9 +551,11 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .period-apply { width: 100%; margin-top: 8px; }
 
 /* ---------- modals: settings + invoice ---------- */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; z-index: 200; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; z-index: 200; transition: opacity .18s ease; }
 .modal-overlay[hidden] { display: none; }
-.modal { background: var(--popover); color: var(--popover-foreground); border: 1px solid var(--border); border-radius: var(--radius-xl); width: 100%; max-width: 480px; padding: 28px; }
+.modal-overlay.closing { opacity: 0; }
+.modal { background: var(--popover); color: var(--popover-foreground); border: 1px solid var(--border); border-radius: var(--radius-xl); width: 100%; max-width: 480px; padding: 28px; transition: opacity .18s ease, transform .18s ease; }
+.modal-overlay.closing .modal { opacity: 0; transform: translateY(8px) scale(.98); }
 .modal.modal-wide { max-width: 720px; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .modal-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
@@ -540,9 +568,6 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .settings-block:last-child { margin-bottom: 0; }
 .settings-block-title { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
 .settings-block-hint { font-size: 12px; color: var(--muted-foreground); margin: 0 0 14px; }
-.currency-pick { display: inline-flex; padding: 3px; background: var(--muted); border-radius: var(--radius-lg); gap: 2px; }
-.currency-pick button { appearance: none; border: none; background: transparent; color: var(--muted-foreground); font-family: var(--font-sans); font-size: 13px; font-weight: 500; padding: 7px 16px; border-radius: var(--radius-md); cursor: pointer; }
-.currency-pick button[data-active="true"] { background: var(--card); color: var(--card-foreground); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 
 .inv-modal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
 .inv-modal-cols textarea.input { height: auto; padding: 8px 12px; resize: vertical; min-height: 56px; line-height: 1.4; }
@@ -554,7 +579,9 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .sig-tabs button[data-active="true"] { background: var(--card); color: var(--card-foreground); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff; border: 1px dashed var(--border); border-radius: var(--radius-md); cursor: crosshair; touch-action: none; display: block; }
 .sig-preview-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
-.sig-preview-row img { height: 44px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; padding: 4px; }
+.sig-preview-row img { height: 44px; max-width: 200px; object-fit: contain; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; padding: 4px; }
+.sig-upload-hint { font-size: 12px; margin: 8px 0 0; }
+.sig-upload-error { font-size: 12px; color: var(--destructive); margin: 8px 0 0; }
 
 .tax-breakdown { background: var(--muted); border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; color: var(--muted-foreground); margin-top: 8px; line-height: 1.6; }
 .tax-breakdown b { color: var(--foreground); }
@@ -569,9 +596,12 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
         <button class="tab" data-screen-tab="history" onclick="showScreen('history')" data-i18n="tab.history">История</button>
         <button class="tab" data-screen-tab="invoices" onclick="showScreen('invoices')" data-i18n="tab.invoices">Счета</button>
       </div>
-      <button class="btn btn-icon btn-outline" title="Настройки" data-i18n-title="settings.title" onclick="openSettings()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
+      <span class="select-wrap lang-select-wrap">
+        <select class="lang-select" id="langSelect" onchange="selectSettingsLang(this.value)">
+          <option value="ru">RU</option>
+          <option value="en">EN</option>
+        </select>
+      </span>
     </div>
   </div>
 
@@ -608,8 +638,17 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
               </div>
             </div>
             <div>
-              <span class="field-label" id="rateLabel">Ставка, ₽</span>
-              <input class="input" id="rateInput" type="text" value="" placeholder="Без оплаты" data-i18n-ph="timer.noPay" inputmode="numeric">
+              <span class="field-label" id="rateLabel">Ставка</span>
+              <div class="rate-field-row">
+                <input class="input" id="rateInput" type="text" value="" placeholder="Без оплаты" data-i18n-ph="timer.noPay" inputmode="numeric">
+                <span class="select-wrap">
+                  <select class="currency-select" id="rateCurrencySelect" onchange="setCurrency(this.value)">
+                    <option value="RUB">₽</option>
+                    <option value="USD">$</option>
+                    <option value="EUR">€</option>
+                  </select>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -770,34 +809,6 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
   </section>
 </div>
 
-<div class="modal-overlay" id="settingsModal" hidden>
-  <div class="modal">
-    <div class="modal-head">
-      <h2 data-i18n="settings.title">Настройки</h2>
-      <button class="modal-close" onclick="closeSettings()">×</button>
-    </div>
-    <div class="settings-block" style="margin-top:20px;">
-      <div class="settings-block-title" data-i18n="settings.currency.title">Валюта</div>
-      <p class="settings-block-hint" data-i18n="settings.currency.hint">Ярлык для новых записей — без конвертации. Старые записи сохраняют ту валюту, с которой были созданы, поэтому при смене возможен показ нескольких валют одновременно в статистике.</p>
-      <div class="currency-pick" id="currencyPick">
-        <button type="button" data-cur="RUB" onclick="selectSettingsCurrency('RUB')">₽ RUB</button>
-        <button type="button" data-cur="USD" onclick="selectSettingsCurrency('USD')">$ USD</button>
-        <button type="button" data-cur="EUR" onclick="selectSettingsCurrency('EUR')">€ EUR</button>
-      </div>
-    </div>
-    <div class="settings-block">
-      <div class="settings-block-title" data-i18n="settings.lang.title">Язык</div>
-      <div class="currency-pick" id="langPick">
-        <button type="button" data-lang="ru" onclick="selectSettingsLang('ru')">RU</button>
-        <button type="button" data-lang="en" onclick="selectSettingsLang('en')">EN</button>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="closeSettings()" data-i18n="settings.done">Готово</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="invoiceModal" hidden>
   <div class="modal modal-wide">
     <div class="modal-head">
@@ -847,11 +858,16 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
       </div>
     </div>
     <div id="sigUploadArea" style="display:none;">
-      <input type="file" accept="image/*" id="sigFileInput" onchange="onSigFileChosen(event)">
-    </div>
-    <div class="sig-preview-row" id="sigPreviewRow" style="display:none;">
-      <img id="sigPreviewImg" alt="подпись" data-i18n-alt="modal.sig">
-      <button class="btn btn-outline btn-sm" type="button" onclick="deleteSignature()" data-i18n="modal.sig.delete">Удалить подпись</button>
+      <input type="file" accept="image/png,image/jpeg,image/webp" id="sigFileInput" style="display:none" onchange="onSigFileChosen(event)">
+      <button class="btn btn-outline btn-sm" type="button" onclick="document.getElementById('sigFileInput').click()" data-i18n="modal.sig.choose">Выбрать файл</button>
+      <p class="modal-hint sig-upload-hint" data-i18n="modal.sig.uploadHint">PNG, JPG или WEBP, до 3 МБ. Прямоугольное изображение без белых полей впишется без искажений.</p>
+      <p class="sig-upload-error" id="sigUploadError" style="display:none"></p>
+      <div class="sig-preview-row" id="sigPreviewRow" style="display:none;">
+        <img id="sigPreviewImg" alt="подпись" data-i18n-alt="modal.sig">
+        <button class="btn btn-icon btn-destructive-ghost btn-sm" type="button" onclick="deleteSignature()" title="Удалить подпись" data-i18n-title="modal.sig.delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
+        </button>
+      </div>
     </div>
 
     <div class="field-row" style="margin-top:24px;">
@@ -860,12 +876,27 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
         <input class="input" id="invTaxRate" inputmode="decimal" placeholder="0" oninput="updateTaxBreakdown()">
       </div>
     </div>
-    <p class="modal-hint" style="margin:6px 0 0;" data-i18n="modal.taxHint">Не «налог сверху», а сколько нужно выставить, чтобы после уплаты своего налога на руках осталась именно заработанная сумма.</p>
+    <p class="modal-hint sig-upload-hint" style="margin:6px 0 0;" data-i18n="modal.taxHint">Сумма в счёте увеличится — чтобы после уплаты налога у вас на руках осталась вся заработанная сумма.</p>
     <div class="tax-breakdown" id="taxBreakdown"></div>
 
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeInvoiceModal()" data-i18n="modal.cancel">Отмена</button>
-      <button class="btn btn-primary" onclick="generateInvoicePdf()" data-i18n="modal.generatePdf">Сгенерировать PDF</button>
+      <button class="btn btn-primary" id="generatePdfBtn" onclick="generateInvoicePdf()">
+        <span class="save-icon-slot">
+          <svg class="save-icon-square" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+          <svg class="save-icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <line class="save-hand-min" x1="12" y1="12" x2="12" y2="6.5"/>
+            <line class="save-hand-hr" x1="12" y1="12" x2="15.3" y2="12"/>
+          </svg>
+          <svg class="save-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </span>
+        <span class="save-label">
+          <span class="save-label-idle" data-i18n="modal.generatePdf">Сгенерировать PDF</span>
+          <span class="save-label-saving" data-i18n="modal.generating">Генерируем…</span>
+          <span class="save-label-saved" data-i18n="modal.generated">Готово</span>
+        </span>
+      </button>
     </div>
   </div>
 </div>
@@ -1320,6 +1351,7 @@ function startTimer() {
   currentProjectTag = null;
   document.getElementById('projectTriggerLabel').textContent = currentProjectTag || tr('timer.noTag');
   updateRateForTag(currentProjectTag);
+  document.getElementById('rateCurrencySelect').value = getCurrency();
 }
 function resetToIdle() {
   timerState = 'idle';
@@ -1344,7 +1376,8 @@ function saveEntry() {
   var startStr = pad2(startD.getHours()) + ':' + pad2(startD.getMinutes());
   var endStr = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
   var durH = seconds / 3600;
-  var money = rateVal ? formatMoney(Math.round(durH * (parseInt(rateVal.replace(/\D/g, ''), 10) || 0))) : null;
+  var entryCurrency = document.getElementById('rateCurrencySelect').value;
+  var money = rateVal ? formatMoney(Math.round(durH * parseRate(rateVal)), curSymbol(entryCurrency)) : null;
   var entry = {
     title: titleVal,
     tag: currentProjectTag || 'Без тега',
@@ -1354,7 +1387,7 @@ function saveEntry() {
     date: TODAY_KEY,
     rate: rateVal || null,
     money: money,
-    currency: getCurrency()
+    currency: entryCurrency
   };
 
   playSaveAnimation(function () {
@@ -1423,6 +1456,26 @@ function playSaveAnimation(onSaved) {
     btn.classList.remove('is-saved');
     withMorph(resetToIdle);
   }, reduceMotion ? 500 : 1500));
+}
+
+var generateTimers = [];
+function clearGenerateTimers() { generateTimers.forEach(clearTimeout); generateTimers = []; }
+function playGenerateAnimation(onDone) {
+  var btn = document.getElementById('generatePdfBtn');
+  clearGenerateTimers();
+  btn.classList.remove('is-saved', 'is-saving');
+  void btn.offsetWidth;
+  btn.classList.add('is-saving');
+
+  generateTimers.push(setTimeout(function () {
+    btn.classList.remove('is-saving');
+    btn.classList.add('is-saved');
+  }, reduceMotion ? 40 : 480));
+
+  generateTimers.push(setTimeout(function () {
+    btn.classList.remove('is-saved');
+    onDone();
+  }, reduceMotion ? 500 : 1400));
 }
 
 /* ---- timer card morph: idle button ↔ running card via Web Animations API ---- */
@@ -1792,7 +1845,19 @@ function editFieldsHtml(idBase, e, tagValue) {
       '<input type="text" class="input entry-edit-time tnum" id="et-end-' + idBase + '" value="' + end + '" placeholder="' + escHtml(tr('entry.timePh')) + '" inputmode="numeric">' +
     '</div>' +
     tagFieldHtml(idBase, tagValue) +
-    '<input class="input entry-edit-rate tnum" id="et-rate-' + idBase + '" value="' + (e.rate || '') + '" placeholder="' + escHtml(tr('timer.noPay')) + '" inputmode="numeric">';
+    (function () {
+      var curVal = e.currency || getCurrency();
+      return '<div class="entry-edit-rate rate-field-row">' +
+        '<input class="input entry-edit-rate-input tnum" id="et-rate-' + idBase + '" value="' + (e.rate || '') + '" placeholder="' + escHtml(tr('timer.noPay')) + '" inputmode="numeric">' +
+        '<span class="select-wrap">' +
+          '<select class="currency-select" id="et-cur-' + idBase + '" onchange="setCurrency(this.value)">' +
+            '<option value="RUB"' + (curVal === 'RUB' ? ' selected' : '') + '>₽</option>' +
+            '<option value="USD"' + (curVal === 'USD' ? ' selected' : '') + '>$</option>' +
+            '<option value="EUR"' + (curVal === 'EUR' ? ' selected' : '') + '>€</option>' +
+          '</select>' +
+        '</span>' +
+      '</div>';
+    })();
 }
 function editRowHtml(e, i, idPrefix, saveFn, cancelFn, delFn, askDeleteFn, cancelConfirmFn, confirming) {
   var idBase = idPrefix + i;
@@ -1817,6 +1882,7 @@ function editRowHtml(e, i, idPrefix, saveFn, cancelFn, delFn, askDeleteFn, cance
         '<button class="row-edit-btn row-edit-delete" onclick="' + askDeleteFn + '()" title="' + escHtml(tr('entry.deleteTitle')) + '">' + TRASH_SVG + '</button>' +
       '</div>' +
     '</div>' +
+    '<div class="entry-edit-error" id="et-error-' + idBase + '" style="display:none"></div>' +
   '</div>';
 }
 function newEntryRowHtml() {
@@ -1830,6 +1896,7 @@ function newEntryRowHtml() {
         '<button class="row-edit-btn" onclick="cancelAddEntry()" title="' + escHtml(tr('entry.cancelTitle')) + '">' + CLOSE_SVG + '</button>' +
       '</div>' +
     '</div>' +
+    '<div class="entry-edit-error" id="et-error-new" style="display:none"></div>' +
   '</div>';
 }
 function emptyStateHtml(text) {
@@ -1839,14 +1906,66 @@ function emptyStateHtml(text) {
 /* ---- time / money helpers ---- */
 function timeToMinutes(t) { var p = (t || '0:0').split(':'); return (+p[0] || 0) * 60 + (+p[1] || 0); }
 function durationHours(start, end) { var d = (timeToMinutes(end) - timeToMinutes(start)) / 60; return d > 0 ? Math.round(d * 100) / 100 : 0; }
+function normalizeTimeInput(v) {
+  v = (v || '').trim();
+  if (!v) return v;
+  var m = v.match(/^(\d{1,2}):(\d{1,2})$/);
+  if (m) return pad2(Math.min(23, Math.max(0, parseInt(m[1], 10)))) + ':' + pad2(Math.min(59, Math.max(0, parseInt(m[2], 10))));
+  var digits = v.replace(/\D/g, '');
+  if (!digits) return v;
+  var h, mi;
+  if (digits.length <= 2) { h = parseInt(digits, 10); mi = 0; }
+  else if (digits.length === 3) { h = parseInt(digits.slice(0, 1), 10); mi = parseInt(digits.slice(1), 10); }
+  else { h = parseInt(digits.slice(0, digits.length - 2), 10); mi = parseInt(digits.slice(-2), 10); }
+  return pad2(Math.min(23, Math.max(0, h || 0))) + ':' + pad2(Math.min(59, Math.max(0, mi || 0)));
+}
+function findOverlappingEntry(dateKey, start, end, excludeIndex) {
+  var s1 = timeToMinutes(start), e1 = timeToMinutes(end);
+  var list = (dayDetails[dateKey] && dayDetails[dateKey].entries) || [];
+  for (var i = 0; i < list.length; i++) {
+    if (i === excludeIndex) continue;
+    var parts = (list[i].time || '–').split('–');
+    var s2 = timeToMinutes(list[i].start || (parts[0] || '').trim());
+    var e2 = timeToMinutes(list[i].end || (parts[1] || '').trim());
+    if (s1 < e2 && s2 < e1) return list[i];
+  }
+  return null;
+}
+function checkEntryTimeValid(idBase, dateKey, start, end, excludeIndex) {
+  var errEl = document.getElementById('et-error-' + idBase);
+  var msg = null;
+  if (timeToMinutes(end) <= timeToMinutes(start)) {
+    msg = tr('entry.invalidRange');
+  } else {
+    var overlap = findOverlappingEntry(dateKey, start, end, excludeIndex);
+    if (overlap) msg = tr('entry.overlapPrefix') + overlap.title + tr('entry.overlapSuffix') + ' (' + overlap.time + ')';
+  }
+  if (errEl) { errEl.textContent = msg || ''; errEl.style.display = msg ? 'block' : 'none'; }
+  return !msg;
+}
 function parseMoney(m) { return m ? (parseInt(String(m).replace(/\D/g, ''), 10) || 0) : 0; }
+function parseRate(v) {
+  v = String(v || '').trim();
+  if (!v) return 0;
+  var lastComma = v.lastIndexOf(','), lastDot = v.lastIndexOf('.');
+  var decIdx = Math.max(lastComma, lastDot);
+  var num;
+  if (decIdx === -1) {
+    num = parseFloat(v.replace(/\D/g, ''));
+  } else {
+    var intPart = v.slice(0, decIdx).replace(/\D/g, '');
+    var fracPart = v.slice(decIdx + 1).replace(/\D/g, '');
+    num = parseFloat(intPart + '.' + fracPart);
+  }
+  return isNaN(num) ? 0 : num;
+}
 var CUR_SYMBOL = { RUB: '₽', USD: '$', EUR: '€' };
 function getCurrency() { return localStorage.getItem('tt_currency') || 'RUB'; }
 function setCurrency(code) { localStorage.setItem('tt_currency', code); }
 function curSymbol(code) { return CUR_SYMBOL[code] || code || CUR_SYMBOL[getCurrency()]; }
 function refreshRateLabel() {
   var el = document.getElementById('rateLabel');
-  if (el) el.textContent = tr('timer.rate') + ', ' + curSymbol(getCurrency());
+  if (el) el.textContent = tr('timer.rate');
 }
 function formatMoney(n, symbol) { return n ? n.toLocaleString('ru-RU') + ' ' + (symbol || curSymbol(getCurrency())) : null; }
 function formatMoneyByCur(moneyByCur) {
@@ -1934,13 +2053,15 @@ function cancelAddEntry() { addingEntry = false; renderDdList(); }
 function saveNewEntry() {
   var title = document.getElementById('et-title-new').value.trim() || tr('timer.titlePh');
   var tag = entryTagValue['new'] || 'Без тега';
-  var start = document.getElementById('et-start-new').value || '10:00';
-  var end = document.getElementById('et-end-new').value || '11:00';
+  var start = normalizeTimeInput(document.getElementById('et-start-new').value) || '10:00';
+  var end = normalizeTimeInput(document.getElementById('et-end-new').value) || '11:00';
   var rate = document.getElementById('et-rate-new').value.trim();
+  var entryCurrency = document.getElementById('et-cur-new').value;
   var dateKey = readPickedDate('new');
+  if (!checkEntryTimeValid('new', dateKey, start, end, -1)) return;
   var durH = durationHours(start, end);
-  var money = rate ? formatMoney(Math.round(durH * (parseInt(rate.replace(/\D/g, ''), 10) || 0))) : null;
-  var entry = { title: title, tag: tag, time: start + '–' + end, start: start, end: end, date: dateKey, rate: rate || null, money: money, currency: getCurrency() };
+  var money = rate ? formatMoney(Math.round(durH * parseRate(rate)), curSymbol(entryCurrency)) : null;
+  var entry = { title: title, tag: tag, time: start + '–' + end, start: start, end: end, date: dateKey, rate: rate || null, money: money, currency: entryCurrency };
   if (!dayDetails[dateKey]) dayDetails[dateKey] = { date: dayHeading(dateKey), total: '', entries: [] };
   dayDetails[dateKey].entries.push(entry);
   recomputeDayTotal(dateKey);
@@ -1951,18 +2072,20 @@ function saveNewEntry() {
 function saveDdEdit(i) {
   var idBase = 'dd' + i;
   var e = dayDetails[currentDateKey].entries[i];
+  var start = normalizeTimeInput(document.getElementById('et-start-' + idBase).value) || e.start;
+  var end = normalizeTimeInput(document.getElementById('et-end-' + idBase).value) || e.end;
+  var newDateKey = readPickedDate(idBase);
+  var excludeIdx = (newDateKey === currentDateKey) ? i : -1;
+  if (!checkEntryTimeValid(idBase, newDateKey, start, end, excludeIdx)) return;
   var title = document.getElementById('et-title-' + idBase).value.trim();
   if (title) e.title = title;
   e.tag = entryTagValue[idBase] || e.tag;
-  var start = document.getElementById('et-start-' + idBase).value || e.start;
-  var end = document.getElementById('et-end-' + idBase).value || e.end;
   e.start = start; e.end = end; e.time = start + '–' + end;
   var rateRaw = document.getElementById('et-rate-' + idBase).value.trim();
   var durH = durationHours(start, end);
   e.rate = rateRaw || null;
-  e.currency = e.currency || getCurrency();
-  e.money = rateRaw ? formatMoney(Math.round(durH * (parseInt(rateRaw.replace(/\D/g, ''), 10) || 0)), curSymbol(e.currency)) : null;
-  var newDateKey = readPickedDate(idBase);
+  e.currency = document.getElementById('et-cur-' + idBase).value;
+  e.money = rateRaw ? formatMoney(Math.round(durH * parseRate(rateRaw)), curSymbol(e.currency)) : null;
   e.date = newDateKey;
 
   if (newDateKey !== currentDateKey) {
@@ -2334,6 +2457,8 @@ function renderSearchResults(query) {
 
 /* ---- invoices: project selector (same combobox pattern, existing tags only) ---- */
 var invoiceProjectTag = null;
+var INV_ALL_TAGS = '__ALL__';
+function invTagFilter() { return invoiceProjectTag === INV_ALL_TAGS ? [] : [invoiceProjectTag]; }
 function invToggleProjectPopover(e) {
   e.stopPropagation();
   var pop = document.getElementById('invProjectPopover');
@@ -2344,16 +2469,18 @@ function invToggleProjectPopover(e) {
 }
 function invRenderProjectOptions() {
   var box = document.getElementById('invProjectOptions');
-  if (!allTags.length) { box.innerHTML = '<div class="tag-empty">' + escHtml(tr('timer.noTagsYet')) + '</div>'; return; }
-  box.innerHTML = allTags.map(function(t){
+  var allRow = '<div class="tag-option" onclick="invSelectProject(\'' + INV_ALL_TAGS + '\')">' +
+    '<span class="tag-check-slot">' + (invoiceProjectTag === INV_ALL_TAGS ? CHECK_SVG : '') + '</span>' + escHtml(tr('inv.allEntries')) + '</div>';
+  var rows = allTags.map(function(t){
     var active = t === invoiceProjectTag;
     return '<div class="tag-option" onclick="invSelectProject(\'' + jsEsc(t) + '\')">' +
       '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t) + '</div>';
   }).join('');
+  box.innerHTML = allRow + rows;
 }
 function invSelectProject(t) {
   invoiceProjectTag = t;
-  document.getElementById('invProjectLabel').textContent = t;
+  document.getElementById('invProjectLabel').textContent = (t === INV_ALL_TAGS) ? tr('inv.allEntries') : t;
   document.getElementById('invProjectPopover').style.display = 'none';
   invRefreshResults();
 }
@@ -2478,11 +2605,12 @@ function invRefreshResults() {
     resultsEl.style.display = 'none';
     return;
   }
-  var stats = computeStatsForRange(invCurrentPeriodStart, invCurrentPeriodEnd, [invoiceProjectTag]);
+  var stats = computeStatsForRange(invCurrentPeriodStart, invCurrentPeriodEnd, invTagFilter());
   if (!stats.count) {
-    emptyEl.textContent = getLang() === 'en'
-      ? 'No entries for "' + invoiceProjectTag + '" in ' + invCurrentPeriodRange + '.'
-      : 'Нет записей по тегу «' + invoiceProjectTag + '» за период ' + invCurrentPeriodRange.toLowerCase() + '.';
+    var periodLabel = getLang() === 'en' ? invCurrentPeriodRange : invCurrentPeriodRange.toLowerCase();
+    emptyEl.textContent = invoiceProjectTag === INV_ALL_TAGS
+      ? tr('inv.emptyAllPrefix') + periodLabel + tr('inv.emptyAllSuffix')
+      : tr('inv.emptyTagPrefix') + invoiceProjectTag + tr('inv.emptyTagMid') + periodLabel + tr('inv.emptyTagSuffix');
     emptyEl.style.display = 'block';
     resultsEl.style.display = 'none';
     return;
@@ -2496,20 +2624,25 @@ function invRefreshResults() {
 /* ---- i18n: covers Invoices tab, Settings, invoice modal + PDF so far ---- */
 var I18N = {
   ru: {
-    'tab.timer': 'Таймер', 'tab.history': 'История', 'tab.invoices': 'Счета', 'settings.title': 'Настройки', 'settings.done': 'Готово',
-    'settings.currency.title': 'Валюта',
-    'settings.currency.hint': 'Ярлык для новых записей — без конвертации. Старые записи сохраняют ту валюту, с которой были созданы, поэтому при смене возможен показ нескольких валют одновременно в статистике.',
-    'settings.lang.title': 'Язык',
+    'tab.timer': 'Таймер', 'tab.history': 'История', 'tab.invoices': 'Счета',
     'inv.project': 'Проект', 'inv.period': 'Период', 'inv.pickTag': 'Выбрать тег',
     'inv.hours': 'Часов', 'inv.earned': 'Заработано', 'inv.generate': 'Выставить счёт',
+    'inv.allEntries': 'Все записи',
+    'inv.emptyAllPrefix': 'Нет записей за период ', 'inv.emptyAllSuffix': '.',
+    'inv.emptyTagPrefix': 'Нет записей по тегу «', 'inv.emptyTagMid': '» за период ', 'inv.emptyTagSuffix': '.',
     'modal.title': 'Выставить счёт', 'modal.from': 'От кого', 'modal.to': 'Кому',
     'modal.name': 'Название / имя', 'modal.address': 'Адрес', 'modal.email': 'Email',
     'modal.taxid': 'TaxID / ИНН', 'modal.requisites': 'Реквизиты',
     'modal.sig': 'Подпись', 'modal.sig.draw': 'Нарисовать', 'modal.sig.upload': 'Загрузить',
     'modal.sig.clear': 'Очистить холст', 'modal.sig.delete': 'Удалить подпись',
+    'modal.sig.choose': 'Выбрать файл',
+    'modal.sig.uploadHint': 'PNG, JPG или WEBP, до 3 МБ. Прямоугольное изображение без белых полей впишется без искажений.',
+    'modal.sig.errType': 'Неподдерживаемый формат — используйте PNG, JPG или WEBP.',
+    'modal.sig.errSize': 'Файл слишком большой — до 3 МБ.',
     'modal.taxRate': 'Налоговая ставка, %',
-    'modal.taxHint': 'Не «налог сверху», а сколько нужно выставить, чтобы после уплаты своего налога на руках осталась именно заработанная сумма.',
+    'modal.taxHint': 'Сумма в счёте увеличится — чтобы после уплаты налога у вас на руках осталась вся заработанная сумма.',
     'modal.cancel': 'Отмена', 'modal.generatePdf': 'Сгенерировать PDF',
+    'modal.generating': 'Генерируем…', 'modal.generated': 'Готово',
     'ph.name.from': 'Ваше имя или компания', 'ph.name.to': 'Имя или компания клиента',
     'ph.address': 'Город, страна', 'ph.email.from': 'you@example.com', 'ph.email.to': 'client@example.com',
     'ph.taxid': 'Налоговый номер', 'ph.requisites': 'Банк, номер счёта — свободный текст',
@@ -2535,6 +2668,8 @@ var I18N = {
     'entry.deleteTitle': 'Удалить', 'entry.editTitle': 'Редактировать', 'entry.saveTitle': 'Сохранить',
     'entry.cancelTitle': 'Отмена', 'entry.titlePh': 'Название задачи', 'entry.datePh': 'ДД.ММ.ГГГГ',
     'entry.timePh': 'ЧЧ:ММ', 'entry.openCalTitle': 'Открыть календарь',
+    'entry.invalidRange': 'Время окончания должно быть позже начала',
+    'entry.overlapPrefix': 'Пересекается по времени с «', 'entry.overlapSuffix': '»',
     'history.searchPh': 'Поиск по названию', 'history.tags': 'Теги',
     'history.totalHours': 'Всего часов', 'history.earned': 'Заработано', 'history.tasks': 'Задач',
     'history.addEntry': '+ Добавить', 'history.noResults1': 'Ничего не найдено по «', 'history.noResults2': '»',
@@ -2544,20 +2679,25 @@ var I18N = {
     'period.custom': 'Свой период →', 'period.apply': 'Применить', 'period.presetsBack': 'Пресеты'
   },
   en: {
-    'tab.timer': 'Timer', 'tab.history': 'History', 'tab.invoices': 'Invoices', 'settings.title': 'Settings', 'settings.done': 'Done',
-    'settings.currency.title': 'Currency',
-    'settings.currency.hint': 'A label for new records — no conversion. Old records keep the currency they were created in, so a mix may show up in stats after switching.',
-    'settings.lang.title': 'Language',
+    'tab.timer': 'Timer', 'tab.history': 'History', 'tab.invoices': 'Invoices',
     'inv.project': 'Project', 'inv.period': 'Period', 'inv.pickTag': 'Pick a tag',
     'inv.hours': 'Hours', 'inv.earned': 'Earned', 'inv.generate': 'Generate invoice',
+    'inv.allEntries': 'All entries',
+    'inv.emptyAllPrefix': 'No entries in ', 'inv.emptyAllSuffix': '.',
+    'inv.emptyTagPrefix': 'No entries for "', 'inv.emptyTagMid': '" in ', 'inv.emptyTagSuffix': '.',
     'modal.title': 'Generate invoice', 'modal.from': 'From', 'modal.to': 'Bill to',
     'modal.name': 'Name / company', 'modal.address': 'Address', 'modal.email': 'Email',
     'modal.taxid': 'TaxID', 'modal.requisites': 'Payment details',
     'modal.sig': 'Signature', 'modal.sig.draw': 'Draw', 'modal.sig.upload': 'Upload',
     'modal.sig.clear': 'Clear canvas', 'modal.sig.delete': 'Delete signature',
+    'modal.sig.choose': 'Choose file',
+    'modal.sig.uploadHint': 'PNG, JPG, or WEBP, up to 3 MB. A tightly cropped image with no white margins fits best.',
+    'modal.sig.errType': 'Unsupported format — use PNG, JPG, or WEBP.',
+    'modal.sig.errSize': 'File is too large — 3 MB max.',
     'modal.taxRate': 'Tax rate, %',
-    'modal.taxHint': "Not tax added on top — this is how much to invoice so that after paying your own tax, you keep exactly what you earned.",
+    'modal.taxHint': "We'll increase the invoice total — so that after tax, you keep everything you earned.",
     'modal.cancel': 'Cancel', 'modal.generatePdf': 'Generate PDF',
+    'modal.generating': 'Generating…', 'modal.generated': 'Done',
     'ph.name.from': 'Your name or company', 'ph.name.to': "Client's name or company",
     'ph.address': 'City, country', 'ph.email.from': 'you@example.com', 'ph.email.to': 'client@example.com',
     'ph.taxid': 'Tax ID', 'ph.requisites': 'Bank, account number — free text',
@@ -2583,6 +2723,8 @@ var I18N = {
     'entry.deleteTitle': 'Delete', 'entry.editTitle': 'Edit', 'entry.saveTitle': 'Save',
     'entry.cancelTitle': 'Cancel', 'entry.titlePh': 'Task name', 'entry.datePh': 'DD.MM.YYYY',
     'entry.timePh': 'HH:MM', 'entry.openCalTitle': 'Open calendar',
+    'entry.invalidRange': 'End time must be after start time',
+    'entry.overlapPrefix': 'Overlaps in time with "', 'entry.overlapSuffix': '"',
     'history.searchPh': 'Search by task name', 'history.tags': 'Tags',
     'history.totalHours': 'Total hours', 'history.earned': 'Earned', 'history.tasks': 'Tasks',
     'history.addEntry': '+ Add', 'history.noResults1': 'Nothing found for "', 'history.noResults2': '"',
@@ -2606,7 +2748,7 @@ function applyI18n() {
 /* ---- settings modal ---- */
 function selectSettingsLang(l) {
   setLang(l);
-  document.querySelectorAll('#langPick button').forEach(function (b) { b.dataset.active = b.dataset.lang === l ? 'true' : 'false'; });
+  document.getElementById('langSelect').value = l;
   applyLocaleArrays();
   applyI18n();
   refreshRateLabel();
@@ -2617,19 +2759,6 @@ function selectSettingsLang(l) {
   document.getElementById('periodLabel').textContent = currentPeriodRange;
   invCurrentPeriodRange = presetRangeLabel({ start: invCurrentPeriodStart, end: invCurrentPeriodEnd });
   document.getElementById('invPeriodLabel').textContent = invCurrentPeriodRange;
-  invRefreshResults();
-}
-function openSettings() {
-  document.querySelectorAll('#currencyPick button').forEach(function(b){ b.dataset.active = b.dataset.cur === getCurrency() ? 'true' : 'false'; });
-  document.querySelectorAll('#langPick button').forEach(function(b){ b.dataset.active = b.dataset.lang === getLang() ? 'true' : 'false'; });
-  document.getElementById('settingsModal').hidden = false;
-}
-function closeSettings() { document.getElementById('settingsModal').hidden = true; }
-function selectSettingsCurrency(code) {
-  setCurrency(code);
-  document.querySelectorAll('#currencyPick button').forEach(function(b){ b.dataset.active = b.dataset.cur === code ? 'true' : 'false'; });
-  refreshRateLabel();
-  updateStats();
   invRefreshResults();
 }
 
@@ -2655,36 +2784,69 @@ function initSigPad() {
 }
 function clearSigPad() {
   sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
-  localStorage.removeItem('tt_signature');
+  localStorage.removeItem('tt_signature_draw');
   refreshSigPreview();
 }
 function saveSignatureFromCanvas() {
-  localStorage.setItem('tt_signature', sigCanvas.toDataURL('image/png'));
+  localStorage.setItem('tt_signature_draw', sigCanvas.toDataURL('image/png'));
   refreshSigPreview();
 }
 function setSigMode(mode) {
+  localStorage.setItem('tt_sig_mode', mode);
   document.querySelectorAll('#sigTabs button').forEach(function (b) { b.dataset.active = b.dataset.sigMode === mode ? 'true' : 'false'; });
   document.getElementById('sigDrawArea').style.display = mode === 'draw' ? 'block' : 'none';
   document.getElementById('sigUploadArea').style.display = mode === 'upload' ? 'block' : 'none';
+  refreshSigPreview();
+}
+var SIG_MAX_BYTES = 3 * 1024 * 1024;
+var SIG_MAX_DIM = 600;
+function showSigUploadError(msg) {
+  var errEl = document.getElementById('sigUploadError');
+  if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
 }
 function onSigFileChosen(e) {
   var file = e.target.files[0];
   if (!file) return;
+  var errEl = document.getElementById('sigUploadError');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+  if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+    showSigUploadError(tr('modal.sig.errType'));
+    e.target.value = '';
+    return;
+  }
+  if (file.size > SIG_MAX_BYTES) {
+    showSigUploadError(tr('modal.sig.errSize'));
+    e.target.value = '';
+    return;
+  }
   var reader = new FileReader();
   reader.onload = function () {
-    localStorage.setItem('tt_signature', reader.result);
-    refreshSigPreview();
+    var img = new Image();
+    img.onload = function () {
+      var w = img.naturalWidth, h = img.naturalHeight;
+      var scale = Math.min(1, SIG_MAX_DIM / Math.max(w, h));
+      var outW = Math.max(1, Math.round(w * scale)), outH = Math.max(1, Math.round(h * scale));
+      var canvas = document.createElement('canvas');
+      canvas.width = outW; canvas.height = outH;
+      canvas.getContext('2d').drawImage(img, 0, 0, outW, outH);
+      localStorage.setItem('tt_signature_upload', canvas.toDataURL('image/png'));
+      localStorage.setItem('tt_signature_upload_ratio', String(outW / outH));
+      refreshSigPreview();
+    };
+    img.onerror = function () { showSigUploadError(tr('modal.sig.errType')); };
+    img.src = reader.result;
   };
   reader.readAsDataURL(file);
+  e.target.value = '';
 }
 function deleteSignature() {
-  localStorage.removeItem('tt_signature');
-  if (sigCtx) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+  localStorage.removeItem('tt_signature_upload');
+  localStorage.removeItem('tt_signature_upload_ratio');
   document.getElementById('sigFileInput').value = '';
   refreshSigPreview();
 }
 function refreshSigPreview() {
-  var data = localStorage.getItem('tt_signature');
+  var data = localStorage.getItem('tt_signature_upload');
   var row = document.getElementById('sigPreviewRow');
   if (data) { row.style.display = 'flex'; document.getElementById('sigPreviewImg').src = data; }
   else { row.style.display = 'none'; }
@@ -2694,19 +2856,35 @@ function refreshSigPreview() {
 function openInvoiceModal() {
   if (!invoiceProjectTag) return;
   if (!sigCanvas) initSigPad();
-  document.getElementById('invModalHint').textContent = tr('inv.project') + ': ' + invoiceProjectTag + ' · ' + tr('inv.period') + ': ' + invCurrentPeriodRange;
+  var invModalProjectLabel = invoiceProjectTag === INV_ALL_TAGS ? tr('inv.allEntries') : invoiceProjectTag;
+  document.getElementById('invModalHint').textContent = tr('inv.project') + ': ' + invModalProjectLabel + ' · ' + tr('inv.period') + ': ' + invCurrentPeriodRange;
   document.getElementById('invTaxRate').value = '';
   clearSigPad_soft();
-  refreshSigPreview();
+  setSigMode(localStorage.getItem('tt_sig_mode') || 'draw');
   updateTaxBreakdown();
-  document.getElementById('invoiceModal').hidden = false;
+  clearTimeout(invoiceModalCloseTimer);
+  var overlay = document.getElementById('invoiceModal');
+  overlay.classList.remove('closing');
+  overlay.hidden = false;
 }
 function clearSigPad_soft() { if (sigCtx) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
-function closeInvoiceModal() { document.getElementById('invoiceModal').hidden = true; }
+var invoiceModalCloseTimer = null;
+function closeInvoiceModal() {
+  var overlay = document.getElementById('invoiceModal');
+  clearGenerateTimers();
+  document.getElementById('generatePdfBtn').classList.remove('is-saving', 'is-saved');
+  if (reduceMotion) { overlay.hidden = true; return; }
+  overlay.classList.add('closing');
+  clearTimeout(invoiceModalCloseTimer);
+  invoiceModalCloseTimer = setTimeout(function () {
+    overlay.hidden = true;
+    overlay.classList.remove('closing');
+  }, 180);
+}
 function updateTaxBreakdown() {
   var box = document.getElementById('taxBreakdown');
   if (!invoiceProjectTag) { box.innerHTML = ''; return; }
-  var stats = computeStatsForRange(invCurrentPeriodStart, invCurrentPeriodEnd, [invoiceProjectTag]);
+  var stats = computeStatsForRange(invCurrentPeriodStart, invCurrentPeriodEnd, invTagFilter());
   var taxPct = parseFloat(document.getElementById('invTaxRate').value) || 0;
   var codes = Object.keys(stats.moneyByCur).filter(function (c) { return stats.moneyByCur[c]; });
   if (!codes.length) { box.innerHTML = tr('tax.noAmounts'); return; }
@@ -2733,7 +2911,7 @@ function registerPdfFonts(doc) {
 }
 function generateInvoicePdf() {
   if (!invoiceProjectTag) return;
-  var stats = computeStatsForRange(invCurrentPeriodStart, invCurrentPeriodEnd, [invoiceProjectTag]);
+  var stats = computeStatsForRange(invCurrentPeriodStart, invCurrentPeriodEnd, invTagFilter());
   if (!stats.count) return;
 
   var fromName = document.getElementById('invFromName').value.trim() || '—';
@@ -2747,13 +2925,14 @@ function generateInvoicePdf() {
   var toTaxId = document.getElementById('invToTaxId').value.trim();
   var toReq = document.getElementById('invToRequisites').value.trim();
   var taxPct = parseFloat(document.getElementById('invTaxRate').value) || 0;
-  var sig = localStorage.getItem('tt_signature');
+  var activeSigMode = document.querySelector('#sigTabs button[data-active="true"]').dataset.sigMode;
+  var sig = activeSigMode === 'upload' ? localStorage.getItem('tt_signature_upload') : localStorage.getItem('tt_signature_draw');
 
   var rowsByKey = {};
   Object.keys(dayDetails).forEach(function (key) {
     if (key < invCurrentPeriodStart || key > invCurrentPeriodEnd) return;
     dayDetails[key].entries.forEach(function (e) {
-      if (e.tag !== invoiceProjectTag) return;
+      if (invoiceProjectTag !== INV_ALL_TAGS && e.tag !== invoiceProjectTag) return;
       var parts = (e.time || '–').split('–');
       var s = e.start || (parts[0] || '').trim();
       var en = e.end || (parts[1] || '').trim();
@@ -2856,17 +3035,24 @@ function generateInvoicePdf() {
   if (sig) {
     try {
       y += 14;
-      doc.addImage(sig, 'PNG', margin, y, 140, 50);
-      y += 56;
+      var sigRatio = activeSigMode === 'upload'
+        ? (parseFloat(localStorage.getItem('tt_signature_upload_ratio')) || (140 / 50))
+        : (sigCanvas.width / sigCanvas.height);
+      var sigMaxW = 140, sigMaxH = 50;
+      var sigW = sigMaxW, sigH = sigW / sigRatio;
+      if (sigH > sigMaxH) { sigH = sigMaxH; sigW = sigH * sigRatio; }
+      doc.addImage(sig, 'PNG', margin, y, sigW, sigH);
+      y += sigMaxH + 6;
       doc.setDrawColor(180); doc.line(margin, y, margin + 200, y);
       doc.setFontSize(8); doc.setTextColor(140);
       doc.text(tr('pdf.sig'), margin, y + 12);
     } catch (err) { /* unsupported image format — skip signature block */ }
   }
 
-  var fname = 'invoice_' + invCurrentPeriodStart + '_' + invoiceProjectTag.replace(/\s+/g, '_') + '.pdf';
+  var fnameTag = invoiceProjectTag === INV_ALL_TAGS ? 'all' : invoiceProjectTag.replace(/\s+/g, '_');
+  var fname = 'invoice_' + invCurrentPeriodStart + '_' + fnameTag + '.pdf';
   doc.save(fname);
-  closeInvoiceModal();
+  playGenerateAnimation(function () { closeInvoiceModal(); });
 }
 
 /* ---- timer keyboard shortcuts ---- */
@@ -2890,10 +3076,15 @@ document.addEventListener('keydown', function (e) {
 /* ---- restore saved data on launch ---- */
 loadState();
 applyLocaleArrays();
+currentPeriodRange = presetRangeLabel({ start: currentPeriodStart, end: currentPeriodEnd });
+document.getElementById('periodLabel').textContent = currentPeriodRange;
+invCurrentPeriodRange = presetRangeLabel({ start: invCurrentPeriodStart, end: invCurrentPeriodEnd });
 buildCalendar();
 renderDay(currentDateKey);
 updateStats();
 refreshRateLabel();
 document.getElementById('invPeriodLabel').textContent = invCurrentPeriodRange;
 applyI18n();
+document.getElementById('langSelect').value = getLang();
+document.getElementById('rateCurrencySelect').value = getCurrency();
 </script>
