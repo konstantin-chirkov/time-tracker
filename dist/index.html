@@ -314,11 +314,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .rate-field-row { display: flex; align-items: center; gap: 6px; }
 .rate-field-row .input { flex: 1; min-width: 0; }
 .select-wrap { position: relative; flex: none; display: inline-block; }
-.select-wrap::after {
-  content: ''; position: absolute; right: 9px; top: 50%; pointer-events: none;
-  width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent;
-  border-top: 5px solid var(--muted-foreground); transform: translateY(-2px);
-}
+.select-chevron { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: var(--muted-foreground); pointer-events: none; }
 .currency-select {
   height: 36px; width: 58px; padding: 0 20px 0 10px; text-align: left;
   background: var(--background); color: var(--foreground);
@@ -327,7 +323,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
   appearance: none; -webkit-appearance: none; -moz-appearance: none;
 }
 .entry-edit-fields .currency-select { height: 32px; width: 50px; padding: 0 18px 0 8px; font-size: 12.5px; }
-.entry-edit-fields .select-wrap::after { right: 7px; }
+.entry-edit-fields .select-chevron { right: 6px; width: 12px; height: 12px; }
 .lang-select {
   height: 36px; padding: 0 26px 0 12px; text-align: left;
   background: var(--muted); color: var(--foreground);
@@ -335,7 +331,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
   font-family: var(--font-sans); font-size: 13px; font-weight: 500; cursor: pointer;
   appearance: none; -webkit-appearance: none; -moz-appearance: none;
 }
-.lang-select-wrap::after { right: 11px; }
+.lang-select-wrap .select-chevron { right: 10px; }
 
 .controls-row {
   display: flex; align-items: center; gap: 8px;
@@ -451,6 +447,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .combo-trigger span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
 .btn.combo-trigger svg { width: 13px; height: 13px; color: var(--muted-foreground); flex: none; }
 .btn.tag-trigger { width: auto; padding: 0 12px; gap: 8px; }
+.tag-trigger span[data-i18n] { flex: none; overflow: visible; text-overflow: clip; }
 .tag-popover {
   position: absolute; top: calc(100% + 6px); left: 0; z-index: 20;
   width: 232px; padding: 8px;
@@ -601,6 +598,7 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
           <option value="ru">RU</option>
           <option value="en">EN</option>
         </select>
+        <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </span>
     </div>
   </div>
@@ -647,6 +645,7 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
                     <option value="USD">$</option>
                     <option value="EUR">€</option>
                   </select>
+                  <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                 </span>
               </div>
             </div>
@@ -1855,6 +1854,7 @@ function editFieldsHtml(idBase, e, tagValue) {
             '<option value="USD"' + (curVal === 'USD' ? ' selected' : '') + '>$</option>' +
             '<option value="EUR"' + (curVal === 'EUR' ? ' selected' : '') + '>€</option>' +
           '</select>' +
+          '<svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>' +
         '</span>' +
       '</div>';
     })();
@@ -2333,7 +2333,7 @@ function renderPeriodOptions() {
   var rows = periodPresets.map(function(p, idx){
     var active = p.start === currentPeriodStart && p.end === currentPeriodEnd;
     return '<div class="tag-option" onclick="selectPreset(' + idx + ')">' +
-      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t('period.' + p.key)) + '</div>';
+      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(tr('period.' + p.key)) + '</div>';
   }).join('');
   rows += '<div class="tag-option" onclick="openCustomRange()">' +
     '<span class="tag-check-slot">' + (isCustomActive() ? CHECK_SVG : '') + '</span>' + tr('period.custom') + '</div>';
@@ -2525,7 +2525,7 @@ function invRenderPeriodOptions() {
   var rows = invPeriodPresets.map(function(p, idx){
     var active = p.start === invCurrentPeriodStart && p.end === invCurrentPeriodEnd;
     return '<div class="tag-option" onclick="invSelectPreset(' + idx + ')">' +
-      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(t('period.' + p.key)) + '</div>';
+      '<span class="tag-check-slot">' + (active ? CHECK_SVG : '') + '</span>' + escHtml(tr('period.' + p.key)) + '</div>';
   }).join('');
   rows += '<div class="tag-option" onclick="invOpenCustomRange()">' +
     '<span class="tag-check-slot">' + (invIsCustomActive() ? CHECK_SVG : '') + '</span>' + tr('period.custom') + '</div>';
