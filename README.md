@@ -4,9 +4,8 @@
 
 Скачать готовые установщики: **[Releases → Time Tracker v0.1.0](https://github.com/konstantin-chirkov/time-tracker/releases/latest)**
 
-![Таймер](screenshots/timer.png)
-
-![История](screenshots/history.png)
+| ![Таймер](screenshots/timer.png) | ![История](screenshots/history.png) |
+|---|---|
 
 ## Установка на Mac
 
