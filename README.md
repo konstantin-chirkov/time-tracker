@@ -40,17 +40,10 @@ Works on both new Macs (M1/M2/M3/M4) and older Intel machines.
 
 ## Features
 
-- Start, pause, and stop the timer in one click, with keyboard shortcuts (⌘/Ctrl+Enter to start or save, Space to pause)
-- Classify tasks with tags
-- Set a rate per tag, in your choice of currency (₽ / $ / €) — each entry keeps the currency it was created in, so switching currencies never rewrites your history
-- History as a calendar with month/year navigation
-- Ready-made periods (today, week, month, last month, last 30 days) plus a custom date range
-- Search by task name and filter by tag
-- Add, edit, and delete past entries by hand, with a warning if a new entry's time overlaps an existing one
-- **Generate a PDF invoice** for a tag (project) or for all entries over a period — pick your period the same way you do in History, fill in your and your client's details freely (no fixed country format), set a tax rate and the invoice total is grossed up so that after tax you keep exactly what you tracked, and sign by drawing a signature or uploading an image
-- **Invoice history** — every generated invoice is logged with its project, period, and total, so you can redownload, edit, or delete it later, search past invoices by project, and get warned before accidentally billing the same project and period twice
-- Russian and English interface, switchable anytime
-- Light and dark theme, responsive layout
+- Time tracking — start, pause, and stop the timer in one click. Use keyboard shortcuts for faster work.
+- Tags & rates — organize tasks with tags and set a rate and currency for each one.
+- History — review your work in a calendar, search tasks, filter by tags, and edit past entries.
+- Invoicing — generate PDF invoices for any project or period, add your signature, and keep an invoice history.
 
 ## What's where
 
