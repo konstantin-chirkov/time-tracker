@@ -687,7 +687,7 @@ function startTimer() {
   document.getElementById('titleInput').placeholder = currentEntryDefaultTitle;
   document.getElementById('titleInput').value = '';
   document.getElementById('recRow').style.opacity = '1';
-  currentProjectTag = allTags.length ? allTags[0] : null;
+  currentProjectTag = null;
   document.getElementById('projectTriggerLabel').textContent = currentProjectTag || 'Без тега';
   updateRateForTag(currentProjectTag);
 }
@@ -972,6 +972,8 @@ function renderEntryTagOptions(idBase, filterStr) {
   filterStr = filterStr || '';
   var q = filterStr.toLowerCase();
   var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
+  var noneRow = !filterStr ? ('<div class="tag-option"><span class="tag-option-label" onclick="selectEntryTag(\'' + idBase + '\',\'Без тега\')">' +
+    '<span class="tag-check-slot">' + ((entryTagValue[idBase] || 'Без тега') === 'Без тега' ? CHECK_SVG : '') + '</span>Без тега</span></div>') : '';
   var rows = list.map(function(t){
     if (t === tagDeleteConfirm) return tagOptionConfirmHtml(t);
     var active = t === entryTagValue[idBase];
@@ -982,10 +984,10 @@ function renderEntryTagOptions(idBase, filterStr) {
       '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="Удалить тег">' + TRASH_SVG + '</button>' +
     '</div>';
   }).join('');
-  var html = rows;
+  var html = noneRow + rows;
   if (filterStr && !tagExists(filterStr)) {
     html += '<div class="tag-option tag-option-add" onclick="createAndSelectEntryTag(\'' + idBase + '\',\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + 'Добавить «' + escHtml(filterStr) + '»</div>';
-  } else if (!rows) {
+  } else if (!rows && !noneRow) {
     html = '<div class="tag-empty">Тегов пока нет</div>';
   }
   document.getElementById('entryTagOptions-' + idBase).innerHTML = html;
@@ -1059,7 +1061,7 @@ function newEntryRowHtml() {
   return '<div class="entry-edit-card">' +
     '<input class="entry-edit-title-line" id="et-title-new" placeholder="Название задачи">' +
     '<div class="entry-edit-fields">' +
-      editFieldsHtml('new', blank, allTags[0]) +
+      editFieldsHtml('new', blank, null) +
       '<div class="entry-edit-actions">' +
         '<button class="row-edit-btn" onclick="saveNewEntry()" title="Сохранить">' + CHECK_SVG + '</button>' +
         '<button class="row-edit-btn" onclick="cancelAddEntry()" title="Отмена">' + CLOSE_SVG + '</button>' +
@@ -1302,6 +1304,8 @@ function renderProjectOptions(filterStr) {
   filterStr = filterStr || '';
   var q = filterStr.toLowerCase();
   var list = allTags.filter(function(t){ return t.toLowerCase().indexOf(q) !== -1; });
+  var noneRow = !filterStr ? ('<div class="tag-option"><span class="tag-option-label" onclick="selectProject(null)">' +
+    '<span class="tag-check-slot">' + (!currentProjectTag ? CHECK_SVG : '') + '</span>Без тега</span></div>') : '';
   var rows = list.map(function(t){
     if (t === tagDeleteConfirm) return tagOptionConfirmHtml(t);
     var active = t === currentProjectTag;
@@ -1312,17 +1316,17 @@ function renderProjectOptions(filterStr) {
       '<button type="button" class="tag-option-delete" onclick="askDeleteTag(\'' + jsEsc(t) + '\', event)" title="Удалить тег">' + TRASH_SVG + '</button>' +
     '</div>';
   }).join('');
-  var html = rows;
+  var html = noneRow + rows;
   if (filterStr && !tagExists(filterStr)) {
     html += '<div class="tag-option tag-option-add" onclick="createAndSelectProject(\'' + jsEsc(filterStr) + '\')">' + PLUS_SVG + 'Добавить «' + escHtml(filterStr) + '»</div>';
-  } else if (!rows) {
+  } else if (!rows && !noneRow) {
     html = '<div class="tag-empty">Тегов пока нет</div>';
   }
   document.getElementById('projectOptions').innerHTML = html;
 }
 function selectProject(t) {
   currentProjectTag = t;
-  document.getElementById('projectTriggerLabel').textContent = t;
+  document.getElementById('projectTriggerLabel').textContent = t || 'Без тега';
   document.getElementById('projectPopover').style.display = 'none';
   updateRateForTag(t);
 }
