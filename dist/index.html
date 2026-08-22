@@ -638,9 +638,10 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
 .lang-picker-actions { display: flex; gap: 10px; }
 .lang-picker-actions .btn { flex: 1; height: 40px; }
 
-.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 12px); z-index: 10001; display: flex; align-items: center; gap: 14px; background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 12px 32px rgba(0,0,0,.2); padding: 12px 14px 12px 18px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; max-width: calc(100vw - 32px); }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 12px); z-index: 10001; display: flex; align-items: center; gap: 10px; background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 12px 32px rgba(0,0,0,.2); padding: 12px 18px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; max-width: calc(100vw - 32px); }
 .toast[data-open="true"] { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
-.toast .btn { flex: none; height: 32px; padding: 0 14px; font-size: 12.5px; }
+.toast-check { flex: none; display: inline-flex; width: 18px; height: 18px; color: #16a34a; }
+.toast-check svg { width: 100%; height: 100%; }
 @media (prefers-reduced-motion: reduce) {
   .toast { transition: none; }
 }
@@ -988,8 +989,8 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
 </div>
 
 <div class="toast" id="toast">
+  <span class="toast-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
   <span id="toastMsg"></span>
-  <button type="button" class="btn btn-outline" id="toastActionBtn" style="display:none"></button>
 </div>
 
 <div class="lang-picker-overlay" id="langPickerOverlay">
@@ -1422,21 +1423,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
 <script>
 var toastHideTimer = null;
-function showToast(msg, actionLabel, actionFn) {
+function showToast(msg) {
   var toast = document.getElementById('toast');
-  var actionBtn = document.getElementById('toastActionBtn');
   document.getElementById('toastMsg').textContent = msg;
-  if (actionLabel) {
-    actionBtn.textContent = actionLabel;
-    actionBtn.style.display = '';
-    actionBtn.onclick = actionFn;
-  } else {
-    actionBtn.style.display = 'none';
-    actionBtn.onclick = null;
-  }
   toast.dataset.open = 'true';
   clearTimeout(toastHideTimer);
-  toastHideTimer = setTimeout(function () { toast.dataset.open = 'false'; }, 6000);
+  toastHideTimer = setTimeout(function () { toast.dataset.open = 'false'; }, 4000);
 }
 function showLangPicker() {
   document.getElementById('langPickerOverlay').style.display = 'flex';
@@ -3042,7 +3034,7 @@ var I18N = {
     'inv.historyTitle': 'История счетов', 'inv.historySearchPh': 'Поиск по проекту',
     'inv.historyEmpty': 'Пока нет выставленных счетов', 'inv.historyNoResults': 'Ничего не найдено',
     'inv.historyDownload': 'Скачать', 'inv.historyDeleteConfirm': 'Удалить счёт из истории?',
-    'inv.savedToast': 'PDF сохранён в Загрузки', 'inv.openPdf': 'Открыть PDF',
+    'inv.savedToast': 'PDF сохранён в Загрузки',
     'inv.historyDuplicateWarning1': 'По этому проекту и периоду уже есть счёт от ',
     'inv.historyDuplicateWarning2': ' — новый сохранится в истории отдельной записью.',
     'modal.title': 'Выставить счёт', 'modal.from': 'От кого', 'modal.to': 'Кому', 'modal.clearFields': 'Очистить поля',
@@ -3126,7 +3118,7 @@ var I18N = {
     'inv.historyTitle': 'Invoice history', 'inv.historySearchPh': 'Search by project',
     'inv.historyEmpty': 'No invoices generated yet', 'inv.historyNoResults': 'Nothing found',
     'inv.historyDownload': 'Download', 'inv.historyDeleteConfirm': 'Delete this invoice from history?',
-    'inv.savedToast': 'PDF saved to Downloads', 'inv.openPdf': 'Open PDF',
+    'inv.savedToast': 'PDF saved to Downloads',
     'inv.historyDuplicateWarning1': "There's already an invoice for this project and period, from ",
     'inv.historyDuplicateWarning2': ' — this one will be saved as a separate entry in history.',
     'modal.title': 'Generate invoice', 'modal.from': 'From', 'modal.to': 'Bill to', 'modal.clearFields': 'Clear fields',
@@ -3415,11 +3407,6 @@ function renderInvoiceHistory() {
       '</div></div>';
   }).join('');
 }
-function savePdfWithToast(doc, filename) {
-  doc.save(filename);
-  var blobUrl = doc.output('bloburl');
-  showToast(tr('inv.savedToast'), tr('inv.openPdf'), function () { window.open(blobUrl, '_blank'); });
-}
 function downloadInvoiceHistoryItem(id) {
   var r = loadInvoiceHistory().filter(function (x) { return x.id === id; })[0];
   if (!r) return;
@@ -3433,7 +3420,8 @@ function downloadInvoiceHistoryItem(id) {
     taxPct: r.taxPct, sig: sig, sigRatio: sigRatio
   };
   var built = buildInvoicePdf(params);
-  savePdfWithToast(built.doc, invoicePdfFileName(params.projectTag, params.periodStart));
+  built.doc.save(invoicePdfFileName(params.projectTag, params.periodStart));
+  showToast(tr('inv.savedToast'));
 }
 function editInvoiceHistoryItem(id) {
   var r = loadInvoiceHistory().filter(function (x) { return x.id === id; })[0];
@@ -3548,16 +3536,17 @@ function restoreInvModalTask(dateKey, idx) {
 }
 function clearSigPad_soft() { if (sigCtx) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
 var invoiceModalCloseTimer = null;
-function closeInvoiceModal() {
+function closeInvoiceModal(onClosed) {
   var overlay = document.getElementById('invoiceModal');
   clearGenerateTimers();
   document.getElementById('generatePdfBtn').classList.remove('is-saving', 'is-saved');
-  if (reduceMotion) { overlay.hidden = true; return; }
+  if (reduceMotion) { overlay.hidden = true; if (onClosed) onClosed(); return; }
   overlay.classList.add('closing');
   clearTimeout(invoiceModalCloseTimer);
   invoiceModalCloseTimer = setTimeout(function () {
     overlay.hidden = true;
     overlay.classList.remove('closing');
+    if (onClosed) onClosed();
   }, 180);
 }
 function updateTaxBreakdown() {
@@ -3769,10 +3758,12 @@ function generateInvoicePdf() {
   };
 
   var built = buildInvoicePdf(params);
-  savePdfWithToast(built.doc, invoicePdfFileName(params.projectTag, params.periodStart));
+  built.doc.save(invoicePdfFileName(params.projectTag, params.periodStart));
   saveInvFields(invoiceProjectTag);
   saveInvoiceHistoryRecord(params, built.stats);
-  playGenerateAnimation(function () { closeInvoiceModal(); });
+  playGenerateAnimation(function () {
+    closeInvoiceModal(function () { showToast(tr('inv.savedToast')); });
+  });
 }
 
 /* ---- timer keyboard shortcuts ---- */
