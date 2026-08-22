@@ -34,9 +34,18 @@ Works on both new Macs (M1/M2/M3/M4) and older Intel machines.
 
 1. Download and open **`Time Tracker.dmg`**.
 2. Drag "Time Tracker" into the Applications folder.
-3. On first launch, macOS will warn about an unidentified developer (normal — the app doesn't have a paid Apple signature). To allow it:
-   - Right-click the app icon → "Open" → "Open" in the dialog.
-   - If instead you get a "Can't be opened" error with no option to open — go to **System Settings → Privacy & Security**, scroll down, and click **"Open Anyway"** next to Time Tracker, then confirm.
+3. On first launch, macOS blocks it as coming from an unidentified developer (normal — the app doesn't have a paid Apple signature). Screenshots below are from a Mac set to Russian, but the dialogs and buttons are in the same places on an English system:
+   - Click **OK** on the warning.
+
+     <img src="screenshots/mac-install-1-blocked.png" width="360">
+
+   - Open **System Settings → Privacy & Security**, scroll down to the security section, and click **"Open Anyway"** next to Time Tracker.
+
+     <img src="screenshots/mac-install-2-settings.png" width="500">
+
+   - Try opening the app again — a second dialog asks you to confirm. Click **"Open"**.
+
+     <img src="screenshots/mac-install-3-confirm.png" width="360">
 4. After that, the app opens with a regular double-click.
 
 ## Install on Windows
