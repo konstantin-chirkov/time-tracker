@@ -578,7 +578,8 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .inv-task-money { font-size: 13px; font-weight: 500; flex: none; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .modal-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
-.modal-close { appearance: none; background: transparent; border: none; color: var(--muted-foreground); cursor: pointer; font-size: 20px; line-height: 1; width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); }
+.modal-close { appearance: none; background: transparent; border: none; color: var(--muted-foreground); cursor: pointer; width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); }
+.modal-close svg { width: 16px; height: 16px; }
 .modal-close:hover { background: var(--accent); }
 .modal-hint { font-size: 13px; color: var(--muted-foreground); margin: 0 0 20px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
@@ -855,7 +856,9 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
   <div class="modal-scroll-body">
     <div class="modal-head">
       <h2 data-i18n="modal.title">Выставить счёт</h2>
-      <button class="modal-close" onclick="closeInvoiceModal()">×</button>
+      <button class="modal-close" onclick="closeInvoiceModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
     </div>
     <div class="inv-modal-hint-row">
       <p class="modal-hint" id="invModalHint"></p>
