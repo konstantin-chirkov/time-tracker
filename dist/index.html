@@ -100,14 +100,14 @@ body {
 .app {
   max-width: 1040px;
   margin: 0 auto;
-  padding: 32px 24px 80px;
+  padding: 28px 24px 40px;
 }
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
 }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
@@ -436,7 +436,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 /* ---------- screen 2: history ---------- */
 .history-toolbar {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 .btn.period-trigger { width: auto; padding: 0 12px; gap: 8px; }
 .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 280px; }
@@ -486,9 +486,9 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 20px;
-  row-gap: 36px;
+  row-gap: 24px;
 }
-.stat-tile { padding: 20px 20px; }
+.stat-tile { padding: 16px 20px; }
 .stat-label { font-size: 12px; color: var(--muted-foreground); margin-bottom: 8px; }
 .stat-value { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
 .stat-value.accent { color: var(--chart-1); }
@@ -578,7 +578,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .inv-task-money { font-size: 13px; font-weight: 500; flex: none; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .modal-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
-.modal-close { appearance: none; background: transparent; border: none; color: var(--muted-foreground); cursor: pointer; font-size: 20px; line-height: 1; padding: 4px; border-radius: var(--radius-sm); }
+.modal-close { appearance: none; background: transparent; border: none; color: var(--muted-foreground); cursor: pointer; font-size: 20px; line-height: 1; width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); }
 .modal-close:hover { background: var(--accent); }
 .modal-hint { font-size: 13px; color: var(--muted-foreground); margin: 0 0 20px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
@@ -3122,7 +3122,7 @@ function renderInvoiceHistory() {
   }
   box.innerHTML = list.map(function (r) {
     if (r.id === invHistoryDeleteConfirmId) {
-      return '<div class="inv-history-row discard-confirm">' +
+      return '<div class="discard-confirm">' +
         '<span>' + escHtml(tr('inv.historyDeleteConfirm')) + '</span>' +
         '<div class="discard-confirm-actions">' +
           '<button class="btn btn-sm btn-destructive-ghost" onclick="deleteInvoiceHistoryItem(\'' + r.id + '\')">' + escHtml(tr('common.yesDelete')) + '</button>' +
@@ -3244,7 +3244,7 @@ function renderInvModalTasks() {
   box.innerHTML = list.map(function (item) {
     var key = item.dateKey + '|' + item.idx;
     if (key === invModalTaskDeleteConfirm) {
-      return '<div class="inv-task-row discard-confirm">' +
+      return '<div class="discard-confirm" style="margin-bottom:8px;">' +
         '<span>' + escHtml(tr('modal.taskDeleteConfirm')) + '</span>' +
         '<div class="discard-confirm-actions">' +
           '<button class="btn btn-sm btn-destructive-ghost" onclick="deleteInvModalTask(\'' + item.dateKey + '\',' + item.idx + ')">' + escHtml(tr('common.yesDelete')) + '</button>' +
