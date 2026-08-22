@@ -456,6 +456,7 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
   box-shadow: 0 12px 32px rgba(0,0,0,.16);
 }
 .tag-popover .input { height: 32px; font-size: 12px; margin-bottom: 6px; }
+.tag-popover.title-suggest { width: 100%; box-sizing: border-box; }
 .tag-options { display: flex; flex-direction: column; max-height: 216px; overflow-y: auto; gap: 1px; }
 .period-custom-box { display: block; }
 .tag-option {
@@ -682,7 +683,12 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
           <div class="rec-row" id="recRow"><span class="rec-dot"></span><span data-i18n="timer.recording">Идёт запись</span></div>
           <div class="timer-display tnum" id="timerDisplay">00:00:00</div>
 
-          <input class="title-input" id="titleInput" type="text" value="" placeholder="Без названия" data-i18n-ph="timer.titlePh">
+          <div class="combo-wrap">
+            <input class="title-input" id="titleInput" type="text" value="" placeholder="Без названия" data-i18n-ph="timer.titlePh" oninput="renderTitleSuggestions('timer','titleInput')" onfocus="renderTitleSuggestions('timer','titleInput')">
+            <div class="tag-popover title-suggest" id="titleSuggestPop-timer" style="display:none">
+              <div class="tag-options" id="titleSuggestOptions-timer"></div>
+            </div>
+          </div>
 
           <div class="field-grid">
             <div>
@@ -2137,6 +2143,43 @@ function selectEntryTag(idBase, t) {
   entryTagValue[idBase] = t;
   document.getElementById('entryTagLabel-' + idBase).textContent = (t === 'Без тега') ? tr('timer.noTag') : t;
   document.getElementById('entryTagPop-' + idBase).style.display = 'none';
+  updateRateForTagInline(idBase, t);
+}
+function updateRateForTagInline(idBase, tag) {
+  var input = document.getElementById('et-rate-' + idBase);
+  if (input) input.value = (tag && tag !== 'Без тега') ? (tagLastRate[tag] || '') : '';
+}
+
+/* ---- inline title suggestions: recently used task titles, own combo-wrap per input ---- */
+function currentTagForSuggest(idBase) {
+  return idBase === 'timer' ? currentProjectTag : (entryTagValue[idBase] || null);
+}
+function renderTitleSuggestions(idBase, inputId) {
+  var pop = document.getElementById('titleSuggestPop-' + idBase);
+  if (!pop) return;
+  var query = document.getElementById(inputId).value.trim().toLowerCase();
+  var tag = currentTagForSuggest(idBase);
+  var seen = {}, withTag = [], others = [];
+  Object.keys(dayDetails).sort().reverse().forEach(function (key) {
+    dayDetails[key].entries.forEach(function (e) {
+      var title = e.title;
+      if (!title || seen[title]) return;
+      if (query && title.toLowerCase().indexOf(query) === -1) return;
+      seen[title] = true;
+      if (tag && tag !== 'Без тега' && e.tag === tag) withTag.push(title); else others.push(title);
+    });
+  });
+  var list = withTag.concat(others).slice(0, 8);
+  if (!list.length) { pop.style.display = 'none'; return; }
+  document.getElementById('titleSuggestOptions-' + idBase).innerHTML = list.map(function (t) {
+    return '<div class="tag-option"><span class="tag-option-label" onclick="pickTitleSuggestion(\'' + idBase + '\',\'' + inputId + '\',\'' + jsEsc(t) + '\')">' + escHtml(t) + '</span></div>';
+  }).join('');
+  closeOtherPopovers(pop.id);
+  pop.style.display = 'block';
+}
+function pickTitleSuggestion(idBase, inputId, title) {
+  document.getElementById(inputId).value = title;
+  document.getElementById('titleSuggestPop-' + idBase).style.display = 'none';
 }
 function createAndSelectEntryTag(idBase, name) {
   name = name.trim();
@@ -2200,6 +2243,7 @@ function saveSearchEdit() {
   e.currency = document.getElementById('et-cur-' + idBase).value;
   e.money = rateRaw ? formatMoney(Math.round(durH * parseRate(rateRaw)), curSymbol(e.currency)) : null;
   e.date = newDateKey;
+  if (rateRaw && e.tag !== 'Без тега') tagLastRate[e.tag] = rateRaw;
 
   if (newDateKey !== dateKey) {
     dayDetails[dateKey].entries.splice(searchEditIndex, 1);
@@ -2258,7 +2302,10 @@ function editRowHtml(e, i, idPrefix, saveFn, cancelFn, delFn, askDeleteFn, cance
     '</div>';
   }
   return '<div class="entry-edit-card">' +
-    '<input class="entry-edit-title-line" id="et-title-' + idBase + '" value="' + escHtml(e.title) + '">' +
+    '<div class="combo-wrap">' +
+      '<input class="entry-edit-title-line" id="et-title-' + idBase + '" value="' + escHtml(e.title) + '" oninput="renderTitleSuggestions(\'' + idBase + '\',\'et-title-' + idBase + '\')" onfocus="renderTitleSuggestions(\'' + idBase + '\',\'et-title-' + idBase + '\')">' +
+      '<div class="tag-popover title-suggest" id="titleSuggestPop-' + idBase + '" style="display:none"><div class="tag-options" id="titleSuggestOptions-' + idBase + '"></div></div>' +
+    '</div>' +
     '<div class="entry-edit-fields">' +
       editFieldsHtml(idBase, e, e.tag) +
       '<div class="entry-edit-actions">' +
@@ -2273,7 +2320,10 @@ function editRowHtml(e, i, idPrefix, saveFn, cancelFn, delFn, askDeleteFn, cance
 function newEntryRowHtml() {
   var blank = { time: '10:00–11:00' };
   return '<div class="entry-edit-card">' +
-    '<input class="entry-edit-title-line" id="et-title-new" placeholder="' + escHtml(tr('entry.titlePh')) + '">' +
+    '<div class="combo-wrap">' +
+      '<input class="entry-edit-title-line" id="et-title-new" placeholder="' + escHtml(tr('entry.titlePh')) + '" oninput="renderTitleSuggestions(\'new\',\'et-title-new\')" onfocus="renderTitleSuggestions(\'new\',\'et-title-new\')">' +
+      '<div class="tag-popover title-suggest" id="titleSuggestPop-new" style="display:none"><div class="tag-options" id="titleSuggestOptions-new"></div></div>' +
+    '</div>' +
     '<div class="entry-edit-fields">' +
       editFieldsHtml('new', blank, null) +
       '<div class="entry-edit-actions">' +
@@ -2444,6 +2494,7 @@ function saveNewEntry() {
   var entryCurrency = document.getElementById('et-cur-new').value;
   var dateKey = readPickedDate('new');
   if (!checkEntryTimeValid('new', dateKey, start, end, -1)) return;
+  if (rate && tag !== 'Без тега') tagLastRate[tag] = rate;
   var durH = durationHours(start, end);
   var money = rate ? formatMoney(Math.round(durH * parseRate(rate)), curSymbol(entryCurrency)) : null;
   var entry = { title: title, tag: tag, time: start + '–' + end, start: start, end: end, date: dateKey, rate: rate || null, money: money, currency: entryCurrency };
@@ -2472,6 +2523,7 @@ function saveDdEdit(i) {
   e.currency = document.getElementById('et-cur-' + idBase).value;
   e.money = rateRaw ? formatMoney(Math.round(durH * parseRate(rateRaw)), curSymbol(e.currency)) : null;
   e.date = newDateKey;
+  if (rateRaw && e.tag !== 'Без тега') tagLastRate[e.tag] = rateRaw;
 
   if (newDateKey !== currentDateKey) {
     dayDetails[currentDateKey].entries.splice(i, 1);
@@ -2502,7 +2554,7 @@ function buildCalendar() {
     var isSelected = !c.muted && c.key === currentDateKey;
     return '<button class="cal-day" data-muted="'+c.muted+'" data-today="'+isToday+'" data-selected="'+isSelected+'"' +
       (!c.muted ? ' onclick="selectDay(\''+c.key+'\', this)"' : '') + '>' +
-      '<span class="num">'+c.num+'</span>' + (hrs ? '<span class="hrs tnum">'+hrs+tr('unit.h')+'</span>' : '') +
+      '<span class="num">'+c.num+'</span><span class="hrs tnum"' + (hrs ? '' : ' style="visibility:hidden"') + '>'+(hrs ? hrs+tr('unit.h') : ' ')+'</span>' +
       '</button>';
   }).join('');
 }
@@ -2663,7 +2715,7 @@ var periodCalYear = TODAY_Y, periodCalMonth = TODAY_M;
 /* ---- stats for the selected period ---- */
 function computeStatsForRange(startKey, endKey, tagFilter, excludeSet) {
   var activeTags = tagFilter || Object.keys(selectedTags).filter(function(t){ return selectedTags[t]; });
-  var totalH = 0, moneyByCur = {}, count = 0;
+  var totalH = 0, moneyByCur = {}, seenTitles = {}, count = 0;
   Object.keys(dayDetails).forEach(function(key){
     if (key < startKey || key > endKey) return;
     dayDetails[key].entries.forEach(function(e, idx){
@@ -2675,7 +2727,7 @@ function computeStatsForRange(startKey, endKey, tagFilter, excludeSet) {
       totalH += durationHours(s, en);
       var cur = e.currency || 'RUB';
       moneyByCur[cur] = (moneyByCur[cur] || 0) + parseMoney(e.money);
-      count++;
+      if (!seenTitles[e.title]) { seenTitles[e.title] = true; count++; }
     });
   });
   return { hours: Math.round(totalH * 10) / 10, moneyByCur: moneyByCur, count: count };
