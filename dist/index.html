@@ -618,6 +618,26 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
 
 .tax-breakdown { background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; color: var(--muted-foreground); margin-top: 8px; line-height: 1.6; }
 .tax-breakdown b { color: var(--foreground); }
+
+.onboarding-overlay { display: none; }
+.onboarding-scrim { position: fixed; inset: 0; z-index: 9998; background: transparent; }
+.onboarding-spotlight { position: fixed; z-index: 9998; border: 2px solid var(--chart-1); border-radius: var(--radius-md); box-shadow: 0 0 0 9999px rgba(0,0,0,.6); pointer-events: none; transition: top .2s ease, left .2s ease, width .2s ease, height .2s ease; }
+.onboarding-arrow { position: fixed; z-index: 9999; width: 12px; height: 12px; background: var(--card); border: 1px solid var(--border); transform: rotate(45deg); pointer-events: none; }
+.onboarding-card { position: fixed; z-index: 9999; background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 12px 32px rgba(0,0,0,.2); padding: 16px 18px; font-family: var(--font-sans); visibility: hidden; }
+.onboarding-card h4 { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+.onboarding-card p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted-foreground); }
+.onboarding-progress { font-size: 11px; color: var(--muted-foreground); margin-top: 12px; font-variant-numeric: tabular-nums; }
+.onboarding-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; gap: 8px; }
+.onboarding-actions .btn { height: 32px; padding: 0 14px; font-size: 12.5px; }
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-spotlight { transition: none; }
+}
+
+.lang-picker-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,.5); align-items: center; justify-content: center; }
+.lang-picker-card { background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 12px 32px rgba(0,0,0,.25); padding: 28px; width: 300px; text-align: center; }
+.lang-picker-title { font-size: 14px; font-weight: 600; margin-bottom: 18px; line-height: 1.5; }
+.lang-picker-actions { display: flex; gap: 10px; }
+.lang-picker-actions .btn { flex: 1; height: 40px; }
 </style>
 
 <div class="app">
@@ -959,6 +979,31 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
           <span class="save-label-saved" data-i18n="modal.generated">Готово</span>
         </span>
       </button>
+    </div>
+  </div>
+</div>
+
+<div class="lang-picker-overlay" id="langPickerOverlay">
+  <div class="lang-picker-card">
+    <div class="lang-picker-title">Choose your language<br>Выберите язык</div>
+    <div class="lang-picker-actions">
+      <button type="button" class="btn btn-outline" onclick="chooseLang('ru')">Русский</button>
+      <button type="button" class="btn btn-primary" onclick="chooseLang('en')">English</button>
+    </div>
+  </div>
+</div>
+
+<div class="onboarding-overlay" id="onboardingOverlay">
+  <div class="onboarding-scrim"></div>
+  <div class="onboarding-spotlight" id="onboardingSpotlight"></div>
+  <div class="onboarding-arrow" id="onboardingArrow"></div>
+  <div class="onboarding-card" id="onboardingCard">
+    <h4 id="onboardingTitle"></h4>
+    <p id="onboardingBody"></p>
+    <div class="onboarding-progress" id="onboardingProgress"></div>
+    <div class="onboarding-actions">
+      <button type="button" class="btn btn-outline" onclick="skipOnboarding()" id="onboardingSkipBtn"></button>
+      <button type="button" class="btn btn-primary" onclick="advanceOnboarding()" id="onboardingNextBtn"></button>
     </div>
   </div>
 </div>
@@ -1367,11 +1412,159 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 </script>
 
 <script>
+function showLangPicker() {
+  document.getElementById('langPickerOverlay').style.display = 'flex';
+}
+function chooseLang(l) {
+  selectSettingsLang(l);
+  document.getElementById('langPickerOverlay').style.display = 'none';
+  maybeStartOnboarding('timer');
+}
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(function(s){ s.dataset.active = (s.dataset.screen === name) ? 'true' : 'false'; });
   document.querySelectorAll('.tab').forEach(function(t){ t.dataset.active = (t.dataset.screenTab === name) ? 'true' : 'false'; });
   if (name === 'invoices' && typeof invRefreshResults === 'function') { invRefreshResults(); renderInvoiceHistory(); }
+  maybeStartOnboarding(name);
 }
+
+/* ---- onboarding tour ---- */
+var ONBOARDING_STEPS = {
+  timer: [
+    { selector: '.btn-play-big', titleKey: 'onb.timer.start.title', bodyKey: 'onb.timer.start.body' },
+    { selector: '#runningView .combo-trigger', titleKey: 'onb.timer.tag.title', bodyKey: 'onb.timer.tag.body', fakeView: 'timer' },
+    { selector: '#runningView .rate-field-row', titleKey: 'onb.timer.rate.title', bodyKey: 'onb.timer.rate.body', fakeView: 'timer' },
+    { selector: '#pauseBtn', titleKey: 'onb.timer.pause.title', bodyKey: 'onb.timer.pause.body', fakeView: 'timer' }
+  ],
+  history: [
+    { selector: '.cal-card', titleKey: 'onb.history.calendar.title', bodyKey: 'onb.history.calendar.body' },
+    { selector: '.period-trigger', titleKey: 'onb.history.period.title', bodyKey: 'onb.history.period.body' }
+  ],
+  invoices: [
+    { selector: '.screen[data-screen="invoices"] .field-grid', titleKey: 'onb.invoices.fields.title', bodyKey: 'onb.invoices.fields.body' },
+    { selector: '#invResults .btn-primary', titleKey: 'onb.invoices.generate.title', bodyKey: 'onb.invoices.generate.body', fakeView: 'invoices' },
+    { selector: '.inv-history-wrap', titleKey: 'onb.invoices.history.title', bodyKey: 'onb.invoices.history.body' }
+  ]
+};
+var onbTab = null, onbIndex = 0, onbFakeTimerActive = false, onbFakeInvoicesActive = false;
+
+function maybeStartOnboarding(tab) {
+  if (!ONBOARDING_STEPS[tab] || localStorage.getItem('tt_onboarding_' + tab)) return;
+  setTimeout(function () { startOnboarding(tab); }, 300);
+}
+function startOnboarding(tab) {
+  onbTab = tab;
+  onbIndex = 0;
+  document.getElementById('onboardingOverlay').style.display = 'block';
+  showOnboardingStep();
+}
+function onbApplyFakeView(step) {
+  if (step.fakeView === 'timer' && timerState === 'idle' && !onbFakeTimerActive) {
+    document.getElementById('idleView').style.display = 'none';
+    document.getElementById('runningView').style.display = 'block';
+    onbFakeTimerActive = true;
+  } else if (step.fakeView === 'invoices' && !onbFakeInvoicesActive) {
+    var results = document.getElementById('invResults');
+    if (results.style.display === 'none') {
+      document.getElementById('invEmptyState').style.display = 'none';
+      results.style.display = 'block';
+      onbFakeInvoicesActive = true;
+    }
+  }
+}
+function onbRevertFakeViews() {
+  if (onbFakeTimerActive) {
+    if (timerState === 'idle') {
+      document.getElementById('runningView').style.display = 'none';
+      document.getElementById('idleView').style.display = '';
+    }
+    onbFakeTimerActive = false;
+  }
+  if (onbFakeInvoicesActive) {
+    if (typeof invRefreshResults === 'function') invRefreshResults();
+    onbFakeInvoicesActive = false;
+  }
+}
+function onbPositionSpotlight(rect) {
+  var pad = 8;
+  var spot = document.getElementById('onboardingSpotlight');
+  spot.style.left = (rect.left - pad) + 'px';
+  spot.style.top = (rect.top - pad) + 'px';
+  spot.style.width = (rect.width + pad * 2) + 'px';
+  spot.style.height = (rect.height + pad * 2) + 'px';
+}
+function onbPositionCard(rect, titleKey, bodyKey, isLast, idx, total) {
+  var card = document.getElementById('onboardingCard');
+  document.getElementById('onboardingTitle').textContent = tr(titleKey);
+  document.getElementById('onboardingBody').textContent = tr(bodyKey);
+  document.getElementById('onboardingProgress').textContent = (idx + 1) + ' / ' + total;
+  document.getElementById('onboardingSkipBtn').textContent = tr('onb.skip');
+  document.getElementById('onboardingNextBtn').textContent = isLast ? tr('onb.done') : tr('onb.next');
+
+  var pad = 8, gap = 14, margin = 12;
+  var vw = window.innerWidth, vh = window.innerHeight;
+  var cardW = Math.min(280, vw - margin * 2);
+  card.style.width = cardW + 'px';
+  var left = rect.left + rect.width / 2 - cardW / 2;
+  left = Math.max(margin, Math.min(left, vw - cardW - margin));
+  card.style.left = left + 'px';
+
+  card.style.visibility = 'hidden';
+  var cardH = card.getBoundingClientRect().height;
+  var spaceBelow = vh - (rect.bottom + pad + gap);
+  var spaceAbove = rect.top - pad - gap;
+  var placement = (spaceBelow >= cardH || spaceBelow >= spaceAbove) ? 'below' : 'above';
+  var top;
+  if (placement === 'below') {
+    top = Math.min(rect.bottom + pad + gap, vh - cardH - margin);
+  } else {
+    top = Math.max(rect.top - pad - gap - cardH, margin);
+  }
+  card.style.top = top + 'px';
+  card.style.visibility = 'visible';
+
+  var arrow = document.getElementById('onboardingArrow');
+  var arrowX = Math.max(left + 14, Math.min(rect.left + rect.width / 2 - 6, left + cardW - 26));
+  arrow.style.left = arrowX + 'px';
+  arrow.style.top = (placement === 'below' ? (top - 6) : (top + cardH - 6)) + 'px';
+}
+function showOnboardingStep() {
+  var steps = ONBOARDING_STEPS[onbTab];
+  var step = steps[onbIndex];
+  if (!step) { finishOnboarding(); return; }
+  onbApplyFakeView(step);
+  var target = document.querySelector(step.selector);
+  if (!target) { onbIndex++; showOnboardingStep(); return; }
+  var rect = target.getBoundingClientRect();
+  onbPositionSpotlight(rect);
+  onbPositionCard(rect, step.titleKey, step.bodyKey, onbIndex === steps.length - 1, onbIndex, steps.length);
+}
+function advanceOnboarding() {
+  var steps = ONBOARDING_STEPS[onbTab];
+  var current = steps[onbIndex];
+  var next = steps[onbIndex + 1];
+  if (current && current.fakeView && (!next || next.fakeView !== current.fakeView)) onbRevertFakeViews();
+  onbIndex++;
+  if (onbIndex >= steps.length) finishOnboarding();
+  else showOnboardingStep();
+}
+function finishOnboarding() {
+  if (onbTab) localStorage.setItem('tt_onboarding_' + onbTab, '1');
+  onbRevertFakeViews();
+  document.getElementById('onboardingOverlay').style.display = 'none';
+  onbTab = null;
+}
+function skipOnboarding() { finishOnboarding(); }
+window.addEventListener('resize', function () {
+  if (!onbTab) return;
+  var steps = ONBOARDING_STEPS[onbTab];
+  var step = steps[onbIndex];
+  if (!step) return;
+  var target = document.querySelector(step.selector);
+  if (!target) return;
+  var rect = target.getBoundingClientRect();
+  onbPositionSpotlight(rect);
+  onbPositionCard(rect, step.titleKey, step.bodyKey, onbIndex === steps.length - 1, onbIndex, steps.length);
+});
 
 var timerState = 'idle'; // idle | running
 var paused = false, seconds = 0;
@@ -2868,7 +3061,27 @@ var I18N = {
     'history.emptyDay': 'Нет записей за этот день', 'unit.h': 'ч',
     'period.today': 'Сегодня', 'period.week': 'Эта неделя', 'period.month': 'Этот месяц',
     'period.lastMonth': 'Прошлый месяц', 'period.last30': 'Последние 30 дней',
-    'period.custom': 'Свой период →', 'period.apply': 'Применить', 'period.presetsBack': 'Пресеты'
+    'period.custom': 'Свой период →', 'period.apply': 'Применить', 'period.presetsBack': 'Пресеты',
+
+    'onb.skip': 'Пропустить', 'onb.next': 'Далее', 'onb.done': 'Понятно',
+    'onb.timer.start.title': 'Запуск таймера',
+    'onb.timer.start.body': 'Нажмите, чтобы начать отсчёт времени по задаче. Остановить и сохранить запись можно в любой момент.',
+    'onb.timer.tag.title': 'Тег и проект',
+    'onb.timer.tag.body': 'Привяжите запись к тегу или проекту — так проще найти её в истории и выставить по ней счёт.',
+    'onb.timer.rate.title': 'Ставка',
+    'onb.timer.rate.body': 'Укажите ставку и валюту для этой задачи — заработок и сумма счёта посчитаются сами.',
+    'onb.timer.pause.title': 'Пауза',
+    'onb.timer.pause.body': 'Если отвлеклись — поставьте таймер на паузу. Время на паузе не попадёт в запись.',
+    'onb.history.calendar.title': 'Календарь',
+    'onb.history.calendar.body': 'Здесь видно, сколько времени и денег принёс каждый день. Кликните на день, чтобы посмотреть или отредактировать записи.',
+    'onb.history.period.title': 'Период',
+    'onb.history.period.body': 'Выберите неделю, месяц или свой диапазон дат, чтобы увидеть итоги за нужный период.',
+    'onb.invoices.fields.title': 'Проект и период',
+    'onb.invoices.fields.body': 'Выберите проект (или все записи без тега) и период — по ним сформируется счёт.',
+    'onb.invoices.generate.title': 'Выставить счёт',
+    'onb.invoices.generate.body': 'Нажмите, чтобы собрать PDF-счёт по выбранным задачам — с суммами, подписью и вашими реквизитами.',
+    'onb.invoices.history.title': 'История счетов',
+    'onb.invoices.history.body': 'Все выставленные счета сохраняются здесь — их можно скачать повторно, отредактировать или удалить.'
   },
   en: {
     'tab.timer': 'Timer', 'tab.history': 'History', 'tab.invoices': 'Invoices',
@@ -2931,10 +3144,30 @@ var I18N = {
     'history.emptyDay': 'No entries for this day', 'unit.h': 'h',
     'period.today': 'Today', 'period.week': 'This week', 'period.month': 'This month',
     'period.lastMonth': 'Last month', 'period.last30': 'Last 30 days',
-    'period.custom': 'Custom range →', 'period.apply': 'Apply', 'period.presetsBack': 'Presets'
+    'period.custom': 'Custom range →', 'period.apply': 'Apply', 'period.presetsBack': 'Presets',
+
+    'onb.skip': 'Skip', 'onb.next': 'Next', 'onb.done': 'Got it',
+    'onb.timer.start.title': 'Start the timer',
+    'onb.timer.start.body': 'Click to start tracking time on a task. You can stop and save the entry any time.',
+    'onb.timer.tag.title': 'Tag & project',
+    'onb.timer.tag.body': "Attach the entry to a tag or project — it's easier to find later in History and to invoice.",
+    'onb.timer.rate.title': 'Rate',
+    'onb.timer.rate.body': "Set a rate and currency for this task — earnings and the invoice total are calculated for you.",
+    'onb.timer.pause.title': 'Pause',
+    'onb.timer.pause.body': "Got interrupted? Pause the timer. Paused time won't be counted in the entry.",
+    'onb.history.calendar.title': 'Calendar',
+    'onb.history.calendar.body': 'See how much time and money each day brought in. Click a day to view or edit its entries.',
+    'onb.history.period.title': 'Period',
+    'onb.history.period.body': 'Pick a week, a month, or a custom date range to see totals for that period.',
+    'onb.invoices.fields.title': 'Project & period',
+    'onb.invoices.fields.body': "Pick a project (or all entries, if you don't use tags) and a period — the invoice is built from those.",
+    'onb.invoices.generate.title': 'Generate invoice',
+    'onb.invoices.generate.body': 'Click to build a PDF invoice for the selected tasks — with totals, your signature, and your details.',
+    'onb.invoices.history.title': 'Invoice history',
+    'onb.invoices.history.body': 'Every invoice you generate is saved here — redownload, edit, or delete it any time.'
   }
 };
-function getLang() { return localStorage.getItem('tt_lang') || 'ru'; }
+function getLang() { return localStorage.getItem('tt_lang') || 'en'; }
 function setLang(l) { localStorage.setItem('tt_lang', l); }
 function tr(key) { return (typeof I18N !== 'undefined' && I18N[getLang()] && I18N[getLang()][key]) || key; }
 function applyI18n() {
@@ -3536,4 +3769,5 @@ document.getElementById('langSelect').value = getLang();
 document.getElementById('rateCurrencySelect').value = getCurrency();
 renderInvoiceHistory();
 restoreLiveTimer();
+if (!localStorage.getItem('tt_lang')) { showLangPicker(); } else { maybeStartOnboarding('timer'); }
 </script>
