@@ -635,7 +635,7 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
 
 .lang-picker-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,.5); align-items: center; justify-content: center; }
 .lang-picker-card { background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 12px 32px rgba(0,0,0,.25); padding: 28px; width: 300px; text-align: center; }
-.lang-picker-title { font-size: 14px; font-weight: 600; margin-bottom: 18px; line-height: 1.5; }
+.lang-picker-icon { font-size: 32px; margin-bottom: 16px; }
 .lang-picker-actions { display: flex; gap: 10px; }
 .lang-picker-actions .btn { flex: 1; height: 40px; }
 </style>
@@ -985,7 +985,7 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
 
 <div class="lang-picker-overlay" id="langPickerOverlay">
   <div class="lang-picker-card">
-    <div class="lang-picker-title">Choose your language<br>Выберите язык</div>
+    <div class="lang-picker-icon">🌐</div>
     <div class="lang-picker-actions">
       <button type="button" class="btn btn-outline" onclick="chooseLang('ru')">Русский</button>
       <button type="button" class="btn btn-primary" onclick="chooseLang('en')">English</button>
@@ -1554,7 +1554,7 @@ function finishOnboarding() {
   onbTab = null;
 }
 function skipOnboarding() { finishOnboarding(); }
-window.addEventListener('resize', function () {
+function onbReposition() {
   if (!onbTab) return;
   var steps = ONBOARDING_STEPS[onbTab];
   var step = steps[onbIndex];
@@ -1564,7 +1564,9 @@ window.addEventListener('resize', function () {
   var rect = target.getBoundingClientRect();
   onbPositionSpotlight(rect);
   onbPositionCard(rect, step.titleKey, step.bodyKey, onbIndex === steps.length - 1, onbIndex, steps.length);
-});
+}
+window.addEventListener('resize', onbReposition);
+window.addEventListener('scroll', onbReposition, true);
 
 var timerState = 'idle'; // idle | running
 var paused = false, seconds = 0;
