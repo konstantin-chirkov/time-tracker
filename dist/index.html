@@ -300,8 +300,8 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
   font-weight: 500;
   color: var(--foreground);
   padding: 0;
-  margin-bottom: 26px;
 }
+.title-input-wrap { margin-bottom: 26px; }
 .title-input::placeholder { color: var(--muted-foreground); font-weight: 400; }
 .title-input:focus-visible { outline: none; }
 
@@ -683,7 +683,7 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
           <div class="rec-row" id="recRow"><span class="rec-dot"></span><span data-i18n="timer.recording">Идёт запись</span></div>
           <div class="timer-display tnum" id="timerDisplay">00:00:00</div>
 
-          <div class="combo-wrap">
+          <div class="combo-wrap title-input-wrap">
             <input class="title-input" id="titleInput" type="text" value="" placeholder="Без названия" data-i18n-ph="timer.titlePh" oninput="renderTitleSuggestions('timer','titleInput')" onfocus="renderTitleSuggestions('timer','titleInput')">
             <div class="tag-popover title-suggest" id="titleSuggestPop-timer" style="display:none">
               <div class="tag-options" id="titleSuggestOptions-timer"></div>
