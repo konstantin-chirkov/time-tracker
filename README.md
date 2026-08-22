@@ -4,10 +4,17 @@
 
 A macOS and Windows app for tracking hourly work. Start a timer as you work, keep a searchable history by task, see what you've earned over any period, and bill clients with a generated PDF invoice — no subscriptions, everything stays on your own computer.
 
-Download ready-to-use installers: **[Releases → Time Tracker v0.1.0](https://github.com/konstantin-chirkov/time-tracker/releases/latest)**
-
 | ![Timer](screenshots/timer.png) | ![History](screenshots/history.png) |
 |---|---|
+
+Download ready-to-use installers: **[Releases → Time Tracker v0.1.0](https://github.com/konstantin-chirkov/time-tracker/releases/latest)**
+
+## Features
+
+- Time tracking — start, pause, and stop the timer in one click. Use keyboard shortcuts for faster work.
+- Tags & rates — organize tasks with tags and set a rate and currency for each one.
+- History — review your work in a calendar, search tasks, filter by tags, and edit past entries.
+- Invoicing — generate PDF invoices for any project or period, add your signature, and keep an invoice history.
 
 ## Web version (the simplest way)
 
@@ -37,13 +44,6 @@ Works on both new Macs (M1/M2/M3/M4) and older Intel machines.
 1. Download and run **`Time Tracker.exe`**.
 2. Windows will show a SmartScreen warning ("Windows protected your PC") for the same reason (no paid signature). Click **"More info"** → **"Run anyway"**.
 3. Go through the install wizard (Next → Next → Install).
-
-## Features
-
-- Time tracking — start, pause, and stop the timer in one click. Use keyboard shortcuts for faster work.
-- Tags & rates — organize tasks with tags and set a rate and currency for each one.
-- History — review your work in a calendar, search tasks, filter by tags, and edit past entries.
-- Invoicing — generate PDF invoices for any project or period, add your signature, and keep an invoice history.
 
 ## What's where
 
