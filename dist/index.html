@@ -1342,12 +1342,50 @@ function fmt(s) {
   return p(h)+':'+p(m)+':'+p(sec);
 }
 function tick() {
-  if (timerState === 'running' && !paused) {
-    seconds++;
-    document.getElementById('timerDisplay').textContent = fmt(seconds);
+  if (timerState === 'running') {
+    if (!paused) {
+      seconds++;
+      document.getElementById('timerDisplay').textContent = fmt(seconds);
+    }
+    persistLiveTimer();
   }
 }
 setInterval(tick, 1000);
+function persistLiveTimer() {
+  if (timerState !== 'running') { localStorage.removeItem('tt_live_timer'); return; }
+  localStorage.setItem('tt_live_timer', JSON.stringify({
+    seconds: seconds,
+    title: document.getElementById('titleInput').value,
+    tag: currentProjectTag,
+    rate: document.getElementById('rateInput').value,
+    currency: document.getElementById('rateCurrencySelect').value
+  }));
+}
+function restoreLiveTimer() {
+  var raw = localStorage.getItem('tt_live_timer');
+  if (!raw) return;
+  var data;
+  try { data = JSON.parse(raw); } catch (err) { return; }
+  if (!data || typeof data.seconds !== 'number') return;
+  timerState = 'running';
+  paused = true;
+  seconds = data.seconds;
+  document.getElementById('timerCard').classList.remove('is-idle');
+  document.getElementById('idleView').style.display = 'none';
+  document.getElementById('runningView').style.display = '';
+  document.getElementById('timerDisplay').textContent = fmt(seconds);
+  currentEntryDefaultTitle = defaultEntryTitle();
+  document.getElementById('titleInput').placeholder = currentEntryDefaultTitle;
+  document.getElementById('titleInput').value = data.title || '';
+  document.getElementById('recRow').style.opacity = '.5';
+  currentProjectTag = data.tag || null;
+  document.getElementById('projectTriggerLabel').textContent = currentProjectTag || tr('timer.noTag');
+  document.getElementById('rateInput').value = data.rate || '';
+  document.getElementById('rateCurrencySelect').value = data.currency || getCurrency();
+  document.getElementById('pauseBtn').innerHTML =
+    '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg><span id="pauseBtnLabel">' + escHtml(tr('timer.resume')) + '</span>';
+}
+window.addEventListener('beforeunload', persistLiveTimer);
 
 var tagLastRate = {};
 function updateRateForTag(tag) {
@@ -1381,6 +1419,7 @@ function resetToIdle() {
   timerState = 'idle';
   paused = false;
   seconds = 0;
+  localStorage.removeItem('tt_live_timer');
   document.getElementById('timerCard').classList.add('is-idle');
   document.getElementById('runningView').style.display = 'none';
   document.getElementById('idleView').style.display = '';
@@ -1414,6 +1453,7 @@ function saveEntry() {
     currency: entryCurrency
   };
 
+  localStorage.removeItem('tt_live_timer');
   playSaveAnimation(function () {
     if (!dayDetails[TODAY_KEY]) dayDetails[TODAY_KEY] = { date: dayHeading(TODAY_KEY), total: '', entries: [] };
     dayDetails[TODAY_KEY].entries.push(entry);
@@ -3385,4 +3425,5 @@ applyI18n();
 document.getElementById('langSelect').value = getLang();
 document.getElementById('rateCurrencySelect').value = getCurrency();
 renderInvoiceHistory();
+restoreLiveTimer();
 </script>

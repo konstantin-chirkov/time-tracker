@@ -11,7 +11,7 @@
       {
         "title": "Time Tracker",
         "width": 820,
-        "height": 640,
+        "height": 820,
         "minWidth": 480,
         "minHeight": 360,
         "resizable": true,
