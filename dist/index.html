@@ -637,6 +637,13 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
 .lang-picker-icon { font-size: 32px; margin-bottom: 16px; }
 .lang-picker-actions { display: flex; gap: 10px; }
 .lang-picker-actions .btn { flex: 1; height: 40px; }
+
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 12px); z-index: 10001; display: flex; align-items: center; gap: 14px; background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 12px 32px rgba(0,0,0,.2); padding: 12px 14px 12px 18px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; max-width: calc(100vw - 32px); }
+.toast[data-open="true"] { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast .btn { flex: none; height: 32px; padding: 0 14px; font-size: 12.5px; }
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: none; }
+}
 </style>
 
 <div class="app">
@@ -978,6 +985,11 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
       </button>
     </div>
   </div>
+</div>
+
+<div class="toast" id="toast">
+  <span id="toastMsg"></span>
+  <button type="button" class="btn btn-outline" id="toastActionBtn" style="display:none"></button>
 </div>
 
 <div class="lang-picker-overlay" id="langPickerOverlay">
@@ -1409,6 +1421,23 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 </script>
 
 <script>
+var toastHideTimer = null;
+function showToast(msg, actionLabel, actionFn) {
+  var toast = document.getElementById('toast');
+  var actionBtn = document.getElementById('toastActionBtn');
+  document.getElementById('toastMsg').textContent = msg;
+  if (actionLabel) {
+    actionBtn.textContent = actionLabel;
+    actionBtn.style.display = '';
+    actionBtn.onclick = actionFn;
+  } else {
+    actionBtn.style.display = 'none';
+    actionBtn.onclick = null;
+  }
+  toast.dataset.open = 'true';
+  clearTimeout(toastHideTimer);
+  toastHideTimer = setTimeout(function () { toast.dataset.open = 'false'; }, 6000);
+}
 function showLangPicker() {
   document.getElementById('langPickerOverlay').style.display = 'flex';
 }
@@ -3013,6 +3042,7 @@ var I18N = {
     'inv.historyTitle': 'История счетов', 'inv.historySearchPh': 'Поиск по проекту',
     'inv.historyEmpty': 'Пока нет выставленных счетов', 'inv.historyNoResults': 'Ничего не найдено',
     'inv.historyDownload': 'Скачать', 'inv.historyDeleteConfirm': 'Удалить счёт из истории?',
+    'inv.savedToast': 'PDF сохранён в Загрузки', 'inv.openPdf': 'Открыть PDF',
     'inv.historyDuplicateWarning1': 'По этому проекту и периоду уже есть счёт от ',
     'inv.historyDuplicateWarning2': ' — новый сохранится в истории отдельной записью.',
     'modal.title': 'Выставить счёт', 'modal.from': 'От кого', 'modal.to': 'Кому', 'modal.clearFields': 'Очистить поля',
@@ -3096,6 +3126,7 @@ var I18N = {
     'inv.historyTitle': 'Invoice history', 'inv.historySearchPh': 'Search by project',
     'inv.historyEmpty': 'No invoices generated yet', 'inv.historyNoResults': 'Nothing found',
     'inv.historyDownload': 'Download', 'inv.historyDeleteConfirm': 'Delete this invoice from history?',
+    'inv.savedToast': 'PDF saved to Downloads', 'inv.openPdf': 'Open PDF',
     'inv.historyDuplicateWarning1': "There's already an invoice for this project and period, from ",
     'inv.historyDuplicateWarning2': ' — this one will be saved as a separate entry in history.',
     'modal.title': 'Generate invoice', 'modal.from': 'From', 'modal.to': 'Bill to', 'modal.clearFields': 'Clear fields',
@@ -3384,6 +3415,11 @@ function renderInvoiceHistory() {
       '</div></div>';
   }).join('');
 }
+function savePdfWithToast(doc, filename) {
+  doc.save(filename);
+  var blobUrl = doc.output('bloburl');
+  showToast(tr('inv.savedToast'), tr('inv.openPdf'), function () { window.open(blobUrl, '_blank'); });
+}
 function downloadInvoiceHistoryItem(id) {
   var r = loadInvoiceHistory().filter(function (x) { return x.id === id; })[0];
   if (!r) return;
@@ -3397,7 +3433,7 @@ function downloadInvoiceHistoryItem(id) {
     taxPct: r.taxPct, sig: sig, sigRatio: sigRatio
   };
   var built = buildInvoicePdf(params);
-  built.doc.save(invoicePdfFileName(params.projectTag, params.periodStart));
+  savePdfWithToast(built.doc, invoicePdfFileName(params.projectTag, params.periodStart));
 }
 function editInvoiceHistoryItem(id) {
   var r = loadInvoiceHistory().filter(function (x) { return x.id === id; })[0];
@@ -3733,7 +3769,7 @@ function generateInvoicePdf() {
   };
 
   var built = buildInvoicePdf(params);
-  built.doc.save(invoicePdfFileName(params.projectTag, params.periodStart));
+  savePdfWithToast(built.doc, invoicePdfFileName(params.projectTag, params.periodStart));
   saveInvFields(invoiceProjectTag);
   saveInvoiceHistoryRecord(params, built.stats);
   playGenerateAnimation(function () { closeInvoiceModal(); });
