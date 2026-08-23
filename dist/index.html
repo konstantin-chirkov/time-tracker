@@ -440,8 +440,9 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 }
 .btn.period-trigger { width: auto; padding: 0 12px; gap: 8px; }
 .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 280px; }
-.search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--muted-foreground); }
-.search-wrap .input { padding-left: 32px; }
+.search-wrap > svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--muted-foreground); }
+.search-wrap .input { padding-left: 32px; padding-right: 26px; }
+.search-wrap .input:placeholder-shown + .combo-search-clear { display: none; }
 .combo-wrap { position: relative; }
 .combo-trigger { width: 100%; justify-content: space-between; }
 .combo-trigger span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
@@ -608,6 +609,8 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
 .inv-history-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .inv-history-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
 .inv-history-search { width: 180px; height: 34px; font-size: 12.5px; }
+.inv-history-search-wrap { flex: none; width: 180px; margin-bottom: 0; }
+.inv-history-search-wrap .input { width: 100%; }
 #invHistoryList { display: flex; flex-direction: column; gap: 18px; }
 .inv-history-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .inv-history-project { font-size: 13px; font-weight: 500; }
@@ -786,6 +789,7 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
       <div class="search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
         <input class="input" id="searchInput" placeholder="Поиск по названию" data-i18n-ph="history.searchPh" oninput="handleSearch(this.value)">
+        <button type="button" class="combo-search-clear" onclick="clearMainSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
       </div>
       <div class="combo-wrap">
         <button class="btn btn-outline combo-trigger tag-trigger" onclick="toggleTagPopover(event)">
@@ -893,7 +897,10 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
       <div class="inv-history-wrap">
         <div class="inv-history-head">
           <h3 data-i18n="inv.historyTitle">История счетов</h3>
-          <input class="input inv-history-search" id="invHistorySearch" placeholder="Поиск по проекту" data-i18n-ph="inv.historySearchPh" oninput="renderInvoiceHistory()">
+          <div class="combo-search-wrap inv-history-search-wrap">
+            <input class="input inv-history-search" id="invHistorySearch" placeholder="Поиск по проекту" data-i18n-ph="inv.historySearchPh" oninput="renderInvoiceHistory()">
+            <button type="button" class="combo-search-clear" onclick="clearInvHistorySearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
+          </div>
         </div>
         <div id="invHistoryList"></div>
       </div>
@@ -983,7 +990,10 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
     </div>
 
     <div id="invModalTasksPanel" style="display:none">
-      <input class="input" id="invModalTaskSearch" placeholder="Поиск задач" data-i18n-ph="modal.taskSearchPh" oninput="renderInvModalTasks()" style="margin-bottom:16px;">
+      <div class="combo-search-wrap" style="margin-bottom:16px;">
+        <input class="input" id="invModalTaskSearch" placeholder="Поиск задач" data-i18n-ph="modal.taskSearchPh" oninput="renderInvModalTasks()">
+        <button type="button" class="combo-search-clear" onclick="clearInvModalTaskSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
+      </div>
       <div id="invModalTasksList"></div>
     </div>
   </div>
@@ -2925,6 +2935,12 @@ document.addEventListener('click', function(e){
 
 /* ---- search (over real dayDetails, newest day first) ---- */
 var lastSearchQuery = '';
+function clearMainSearch() {
+  var input = document.getElementById('searchInput');
+  input.value = '';
+  input.focus();
+  handleSearch('');
+}
 function handleSearch(query) {
   query = query.trim().toLowerCase();
   var grid = document.getElementById('historyGrid');
@@ -3489,6 +3505,12 @@ function saveInvoiceHistoryRecord(params, stats) {
 }
 function invHistoryProjectLabel(tag) { return tag === INV_ALL_TAGS ? tr('inv.allEntries') : tag; }
 var invHistoryDeleteConfirmId = null;
+function clearInvHistorySearch() {
+  var input = document.getElementById('invHistorySearch');
+  input.value = '';
+  input.focus();
+  renderInvoiceHistory();
+}
 function renderInvoiceHistory() {
   var box = document.getElementById('invHistoryList');
   if (!box) return;
@@ -3618,6 +3640,12 @@ function invModalTaskList() {
     });
   });
   return list;
+}
+function clearInvModalTaskSearch() {
+  var input = document.getElementById('invModalTaskSearch');
+  input.value = '';
+  input.focus();
+  renderInvModalTasks();
 }
 function renderInvModalTasks() {
   var box = document.getElementById('invModalTasksList');
