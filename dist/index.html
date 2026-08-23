@@ -456,6 +456,17 @@ canvas.save-burst { position: absolute; width: 240px; height: 240px; left: 50%; 
   box-shadow: 0 12px 32px rgba(0,0,0,.16);
 }
 .tag-popover .input { height: 32px; font-size: 12px; margin-bottom: 6px; }
+.combo-search-wrap { position: relative; margin-bottom: 6px; }
+.combo-search-wrap .input { margin-bottom: 0; padding-right: 26px; }
+.combo-search-clear {
+  position: absolute; right: 3px; top: 50%; transform: translateY(-50%);
+  width: 22px; height: 22px; padding: 0; border: none; background: transparent;
+  color: var(--muted-foreground); cursor: pointer; border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.combo-search-clear svg { width: 12px; height: 12px; }
+.combo-search-clear:hover { background: var(--accent); color: var(--foreground); }
+.combo-search-wrap .input:placeholder-shown + .combo-search-clear { display: none; }
 .tag-popover.title-suggest { width: 100%; box-sizing: border-box; }
 .tag-options { display: flex; flex-direction: column; max-height: 216px; overflow-y: auto; gap: 1px; }
 .period-custom-box { display: block; }
@@ -699,7 +710,10 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
                 <div class="tag-popover" id="projectPopover" style="display:none">
-                  <input class="input" placeholder="Поиск или новый тег" data-i18n-ph="timer.searchOrNewTag" oninput="renderProjectOptions(this.value)">
+                  <div class="combo-search-wrap">
+                    <input class="input" id="projectSearchInput" placeholder="Поиск или новый тег" data-i18n-ph="timer.searchOrNewTag" oninput="renderProjectOptions(this.value)">
+                    <button type="button" class="combo-search-clear" onclick="clearProjectSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
+                  </div>
                   <div class="tag-options" id="projectOptions"></div>
                 </div>
               </div>
@@ -779,7 +793,10 @@ canvas.sig-pad { width: 100%; max-width: 320px; height: 110px; background: #fff;
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="tag-popover" id="tagPopover" style="display:none">
-          <input class="input" placeholder="Поиск или новый тег" data-i18n-ph="timer.searchOrNewTag" oninput="renderTagOptions(this.value)">
+          <div class="combo-search-wrap">
+            <input class="input" id="tagFilterSearchInput" placeholder="Поиск или новый тег" data-i18n-ph="timer.searchOrNewTag" oninput="renderTagOptions(this.value)">
+            <button type="button" class="combo-search-clear" onclick="clearTagFilterSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
+          </div>
           <div class="tag-options" id="tagOptions"></div>
         </div>
       </div>
@@ -2101,7 +2118,10 @@ function tagFieldHtml(idBase, tagValue) {
       '<span id="entryTagLabel-' + idBase + '">' + displayVal + '</span>' + CHEVRON_DOWN_SVG +
     '</button>' +
     '<div class="tag-popover" id="entryTagPop-' + idBase + '" style="display:none">' +
-      '<input class="input" placeholder="' + escHtml(tr('timer.searchOrNewTag')) + '" oninput="renderEntryTagOptions(\'' + idBase + '\', this.value)">' +
+      '<div class="combo-search-wrap">' +
+        '<input class="input" id="entryTagSearchInput-' + idBase + '" placeholder="' + escHtml(tr('timer.searchOrNewTag')) + '" oninput="renderEntryTagOptions(\'' + idBase + '\', this.value)">' +
+        '<button type="button" class="combo-search-clear" onclick="clearEntryTagSearch(\'' + idBase + '\')">' + CLOSE_SVG + '</button>' +
+      '</div>' +
       '<div class="tag-options" id="entryTagOptions-' + idBase + '"></div>' +
     '</div>' +
   '</div>';
@@ -2113,7 +2133,13 @@ function toggleEntryTagPopover(idBase, e) {
   var willOpen = pop.style.display === 'none';
   closeOtherPopovers(popId);
   pop.style.display = willOpen ? 'block' : 'none';
-  if (willOpen) renderEntryTagOptions(idBase, '');
+  if (willOpen) { document.getElementById('entryTagSearchInput-' + idBase).value = ''; renderEntryTagOptions(idBase, ''); }
+}
+function clearEntryTagSearch(idBase) {
+  var input = document.getElementById('entryTagSearchInput-' + idBase);
+  input.value = '';
+  input.focus();
+  renderEntryTagOptions(idBase, '');
 }
 function renderEntryTagOptions(idBase, filterStr) {
   filterStr = filterStr || '';
@@ -2586,7 +2612,13 @@ function toggleTagPopover(e) {
   var willOpen = pop.style.display === 'none';
   closeOtherPopovers('tagPopover');
   pop.style.display = willOpen ? 'block' : 'none';
-  if (willOpen) renderTagOptions('');
+  if (willOpen) { document.getElementById('tagFilterSearchInput').value = ''; renderTagOptions(''); }
+}
+function clearTagFilterSearch() {
+  var input = document.getElementById('tagFilterSearchInput');
+  input.value = '';
+  input.focus();
+  renderTagOptions('');
 }
 function renderTagOptions(filterStr) {
   filterStr = filterStr || '';
@@ -2637,7 +2669,13 @@ function toggleProjectPopover(e) {
   var willOpen = pop.style.display === 'none';
   closeOtherPopovers('projectPopover');
   pop.style.display = willOpen ? 'block' : 'none';
-  if (willOpen) renderProjectOptions('');
+  if (willOpen) { document.getElementById('projectSearchInput').value = ''; renderProjectOptions(''); }
+}
+function clearProjectSearch() {
+  var input = document.getElementById('projectSearchInput');
+  input.value = '';
+  input.focus();
+  renderProjectOptions('');
 }
 function renderProjectOptions(filterStr) {
   filterStr = filterStr || '';
@@ -2703,6 +2741,30 @@ var periodPresets = [
 function presetRangeLabel(p) {
   return p.start === p.end ? formatShortDate(p.start) : formatShortDate(p.start) + ' – ' + formatShortDate(p.end);
 }
+function refreshTodayIfChanged() {
+  var now = new Date();
+  var key = isoDate(now.getFullYear(), now.getMonth(), now.getDate());
+  if (key === TODAY_KEY) return;
+  TODAY_Y = now.getFullYear(); TODAY_M = now.getMonth(); TODAY_D = now.getDate();
+  TODAY_KEY = key;
+  WEEK_DOW = weekdayOfMon(TODAY_Y, TODAY_M, TODAY_D);
+  WEEK_START_KEY = addDaysKey(TODAY_KEY, -WEEK_DOW);
+  WEEK_END_KEY = addDaysKey(WEEK_START_KEY, 6);
+  MONTH_START_KEY = isoDate(TODAY_Y, TODAY_M, 1);
+  MONTH_END_KEY = isoDate(TODAY_Y, TODAY_M, daysInMonth(TODAY_Y, TODAY_M));
+  LAST_MONTH_IDX = TODAY_M === 0 ? 11 : TODAY_M - 1;
+  LAST_MONTH_YEAR = TODAY_M === 0 ? TODAY_Y - 1 : TODAY_Y;
+  LAST_MONTH_START_KEY = isoDate(LAST_MONTH_YEAR, LAST_MONTH_IDX, 1);
+  LAST_MONTH_END_KEY = isoDate(LAST_MONTH_YEAR, LAST_MONTH_IDX, daysInMonth(LAST_MONTH_YEAR, LAST_MONTH_IDX));
+  LAST30_START_KEY = addDaysKey(TODAY_KEY, -29);
+  periodPresets[0].start = periodPresets[0].end = TODAY_KEY;
+  periodPresets[1].start = WEEK_START_KEY; periodPresets[1].end = WEEK_END_KEY;
+  periodPresets[2].start = MONTH_START_KEY; periodPresets[2].end = MONTH_END_KEY;
+  periodPresets[3].start = LAST_MONTH_START_KEY; periodPresets[3].end = LAST_MONTH_END_KEY;
+  periodPresets[4].start = LAST30_START_KEY; periodPresets[4].end = TODAY_KEY;
+  buildCalendar();
+}
+setInterval(refreshTodayIfChanged, 60000);
 var currentPeriodStart = periodPresets[4].start, currentPeriodEnd = periodPresets[4].end;
 var currentPeriodRange = presetRangeLabel(periodPresets[4]);
 document.getElementById('periodLabel').textContent = currentPeriodRange;
